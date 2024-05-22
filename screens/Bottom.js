@@ -1,0 +1,47 @@
+import { ScrollView } from 'react-native'
+import React from 'react'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import Home from './Home';
+import Search from './Search';
+import Cart from './Cart';
+import Profile from './Profile';
+import { Ionicons } from '@expo/vector-icons';
+import Login from './Login';
+
+
+export default function Bottom() {
+    const Tab = createBottomTabNavigator(); 
+
+  return (
+    <Tab.Navigator
+    screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          let iconColor;  
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+            iconColor= focused ? 'blue': 'white'; 
+          } else if(route.name==='Search'){
+            iconName = focused ? 'search' : 'search-outline';
+            iconColor = focused ? 'blue' : 'white' ; 
+          }else if(route.name==='Cart'){
+            iconName = focused ? 'cart' : 'cart-outline';
+            iconColor= focused ? 'blue' : 'white'; 
+          }else if(route.name==='Profile'){
+            iconName= focused ? 'person': 'person-outline';
+            iconColor= focused ? 'blue' : 'white';
+          }
+          // Add similar blocks for other tabs as needed
+
+          // Return an Ionicons component with the corresponding icon name
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+        <Tab.Screen name='Home' component={Home}/> 
+        <Tab.Screen name='Search' component={Search} />
+        <Tab.Screen name='Cart' component={Cart}/>
+        <Tab.Screen name='Profile' component={Login} />
+    </Tab.Navigator>
+  )
+}

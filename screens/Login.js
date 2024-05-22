@@ -1,75 +1,66 @@
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
+// Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDrSb4tLwIq0Oh_7bsKst95Po3n20-i10Q",
-    authDomain: "gym-market.firebaseapp.com",
-    projectId: "gym-market",
-    storageBucket: "gym-market.appspot.com",
-    messagingSenderId: "229168445264",
-    appId: "1:229168445264:web:ed0c5ddc2aeaa463d29e55",
-    measurementId: "G-WHN1M0P7KC"
+  apiKey: "AIzaSyDrSb4tLwIq0Oh_7bsKst95Po3n20-i10Q",
+  authDomain: "gym-market.firebaseapp.com",
+  projectId: "gym-market",
+  storageBucket: "gym-market.appspot.com",
+  messagingSenderId: "229168445264",
+  appId: "1:229168445264:web:ed0c5ddc2aeaa463d29e55",
+  measurementId: "G-WHN1M0P7KC"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Auth with persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+const auth = getAuth();
 
 const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication }) => {
   return (
     <>
-      <View></View>
-      <View style={styles.authContainer}>
-        <Image source={require('./../assets/images/newlogo.png')} style={styles.logo} />
-        <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
-
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          secureTextEntry
-        />
-        <View style={styles.buttonContainer}>
-          <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="#3498db" />
-        </View>
-
-        <View style={styles.bottomContainer}>
-          <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
-            {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
-          </Text>
+      <View style={styles.container}>
+        <View style={styles.authContainer}>
+          <Image source={require('./../assets/images/newlogo.png')} style={styles.logo} />
+          <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            secureTextEntry
+          />
+          <View style={styles.buttonContainer}>
+            <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="#3498db" />
+          </View>
+          <View style={styles.bottomContainer}>
+            <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
+              {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+            </Text>
+          </View>
         </View>
       </View>
     </>
   );
 };
-
-const AuthenticatedScreen = ({ user, handleAuthentication }) => {
+const AuthenticatedScreen = ({ user }) => {
   return (
     <View style={styles.authContainer}>
       <Text style={styles.title}>Welcome</Text>
       <Text style={styles.emailText}>{user.email}</Text>
-      <Button title="Logout" onPress={handleAuthentication} color="#e74c3c" />
     </View>
   );
 };
-
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -87,19 +78,14 @@ export default function Login() {
 
   const handleAuthentication = async () => {
     try {
-      if (user) {
-        console.log('User logged out successfully!');
-        await signOut(auth);
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log('User signed in successfully!');
+        navigation.navigate('Bottomafterlogin');
       } else {
-        if (isLogin) {
-          await signInWithEmailAndPassword(auth, email, password);
-          console.log('User signed in successfully!');
-          navigation.navigate('Home');
-        } else {
-          await createUserWithEmailAndPassword(auth, email, password);
-          console.log('User created successfully!');
-          navigation.navigate('Home');
-        }
+        await createUserWithEmailAndPassword(auth, email, password);
+        console.log('User created successfully!');
+        navigation.navigate('Bottomafterlogin');
       }
     } catch (error) {
       console.error('Authentication error:', error.message);

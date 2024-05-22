@@ -3,6 +3,7 @@ import { View, Image, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions
 import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import Slideshow from 'react-native-image-slider-show';
+import { Rating } from 'react-native-ratings';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -46,15 +47,24 @@ export default function Home() {
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.topCategoriesContainer}>
               {[
-                { name: 'Creatine', image: require('../assets/images/BestPicks/creatine.png') },
-                { name: 'Mass Gainer', image: require('../assets/images/BestPicks/mass-gainer.jpg') },
-                { name: 'Omega 3', image: require('../assets/images/BestPicks/omega3.webp') },
-                { name: 'Vitamin D3', image: require('../assets/images/BestPicks/vitamind3.webp') },
-                { name: 'Smart Watch', image: require('../assets/images/BestPicks/smartwatch.png') },
+                { name: 'Creatine', description: 'Boost your strength and energy levels.', image: require('../assets/images/BestPicks/creatineBG.png'), rating: 4 },
+                { name: 'Mass Gainer', description: 'Gain weight and muscle mass effectively.', image: require('../assets/images/BestPicks/mass-gainerBG.png'), rating: 5 },
+                { name: 'Omega 3', description: 'Improve heart health and reduce inflammation.', image: require('../assets/images/BestPicks/omega3.webp'), rating: 3 },
+                { name: 'Vitamin D3', description: 'Support your bone health with Vitamin D3.', image: require('../assets/images/BestPicks/vitamind3.webp'), rating: 4 },
+                { name: 'Smart Watch', description: 'Track your fitness and stay connected.', image: require('../assets/images/BestPicks/smart-watchNG.png'), rating: 5 },
               ].map((category, index) => (
                 <View key={index} style={styles.topCategoryItem}>
                   <Image source={category.image} style={styles.topCarouselImage} />
                   <Text style={styles.categoryText}>{category.name}</Text>
+                  <Text style={styles.categoryDescription}>{category.description}</Text>
+                  <Rating
+                    type='star'
+                    ratingCount={5}
+                    imageSize={20}
+                    startingValue={category.rating}
+                    readonly
+                    style={styles.rating}
+                  />
                 </View>
               ))}
             </View>
@@ -62,20 +72,19 @@ export default function Home() {
         </View>
 
         <View style={[styles.slideableContainer, { height: 200 }]}>
-  <Slideshow
-    dataSource={images}
-    height={200} // Adjust the height here
-    arrowSize={20}
-    indicatorSize={20}
-    overlay={false}
-    indicatorColor="#CCCCCC"
-    indicatorSelectedColor="#FFFFFF"
-    containerStyle={styles.slideshowContainer}
-    titleStyle={styles.slideshowTitle}
-    captionStyle={styles.slideshowCaption}
-  />
-</View>
-
+          <Slideshow
+            dataSource={images}
+            height={200} // Adjust the height here
+            arrowSize={20}
+            indicatorSize={20}
+            overlay={false}
+            indicatorColor="#CCCCCC"
+            indicatorSelectedColor="#FFFFFF"
+            containerStyle={styles.slideshowContainer}
+            titleStyle={styles.slideshowTitle}
+            captionStyle={styles.slideshowCaption}
+          />
+        </View>
 
         <View style={styles.categoriesContainer}>
           <Text style={styles.categoryHeaderText}>Shop by Category</Text>
@@ -160,13 +169,27 @@ const styles = StyleSheet.create({
   topCategoryItem: {
     alignItems: 'center',
     marginHorizontal: 20,
-    width: 100, // Ensure all items have a consistent width
+    width: 150, // Adjusted to accommodate descriptions
   },
   topCarouselImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
     marginBottom: 5, // Space between the image and the text
+  },
+  categoryText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  categoryDescription: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 10, // Space between the description and the rating
+  },
+  rating: {
+    marginTop: 10, // Add space between the text and the rating
   },
   slideableContainer: {
     backgroundColor: '#FFF',
@@ -190,23 +213,17 @@ const styles = StyleSheet.create({
   categoryItem: {
     alignItems: 'center',
     marginHorizontal: 12, // Changed from 20 to 10 for category items
-    width: 100, // Ensure all items have a consistent width
+    width: 100, // Adjusted to accommodate descriptions
   },
   carouselImage: {
     width: 60,
     height: 60,
   },
-  categoryText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 10,
-  },
   membershipContainer: {
     width: screenWidth, // Slightly smaller than the screen width for better padding
     alignSelf: 'center', // Center the container
     marginBottom: -50,
-    marginTop:-22,
+    marginTop: -22,
     height: 215, // Set a fixed height for the container
     justifyContent: 'center', // Center the image vertically within the container
   },

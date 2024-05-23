@@ -19,7 +19,7 @@ const Membership = () => {
           </View>
         </View>
 
-        {/* First Plan Container */}
+    
         <View style={styles.planContainer}>
           <Text style={[styles.planText, styles.planName]}>One Entrance Package</Text>
           <Text style={styles.priceText}>$6.99</Text>
@@ -43,7 +43,7 @@ const Membership = () => {
           </View>
         </View>
 
-        {/* Additional Plan Containers */}
+     
         <View style={styles.planContainer}>
           <Text style={[styles.planText, styles.planName]}>Standard Package</Text>
           <Text style={styles.priceText}>$54.99</Text>
@@ -113,7 +113,7 @@ const Membership = () => {
           </View>
         </View>
 
-          {/* Guarantee Text */}
+          
           <View style={styles.guaranteeContainer}>
           <Text style={styles.guaranteeTitle}>Love It or Your Money Back</Text>
           <Text style={styles.guaranteeText}>

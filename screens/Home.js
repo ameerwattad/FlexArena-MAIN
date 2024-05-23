@@ -17,7 +17,7 @@ export default function Home() {
   const handleNavigation = () => {
     navigation.navigate('Membership');
   };
-
+  
   const images = [
     { url: require('./../assets/images/SALES/smartwatch.png') },
     { url: require('./../assets/images/SALES/1.png') },
@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 20,
     paddingHorizontal: 10,
+    height:290,
   },
   specialPicksText: {
     fontSize: 20,
@@ -169,13 +170,13 @@ const styles = StyleSheet.create({
   topCategoryItem: {
     alignItems: 'center',
     marginHorizontal: 20,
-    width: 150, // Adjusted to accommodate descriptions
+    width: 150, 
   },
   topCarouselImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 5, // Space between the image and the text
+    marginBottom: 5, 
   },
   categoryText: {
     fontSize: 16,
@@ -186,10 +187,10 @@ const styles = StyleSheet.create({
   categoryDescription: {
     fontSize: 12,
     textAlign: 'center',
-    marginBottom: 10, // Space between the description and the rating
+    marginBottom: 10, 
   },
   rating: {
-    marginTop: 10, // Add space between the text and the rating
+    marginTop: 10,
   },
   slideableContainer: {
     backgroundColor: '#FFF',
@@ -204,32 +205,32 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     backgroundColor: 'white',
     marginTop: 20,
-    marginBottom: 20, // Ensure spacing is consistent
+    marginBottom: 20, 
     paddingHorizontal: 10,
   },
   categoryItemsContainer: {
-    flexDirection: 'row', // Ensure items are displayed horizontally
+    flexDirection: 'row', 
   },
   categoryItem: {
     alignItems: 'center',
-    marginHorizontal: 12, // Changed from 20 to 10 for category items
-    width: 100, // Adjusted to accommodate descriptions
+    marginHorizontal: 12, 
+    width: 100, 
   },
   carouselImage: {
     width: 60,
     height: 60,
   },
   membershipContainer: {
-    width: screenWidth, // Slightly smaller than the screen width for better padding
-    alignSelf: 'center', // Center the container
+    width: screenWidth, 
+    alignSelf: 'center', 
     marginBottom: -50,
     marginTop: -22,
-    height: 215, // Set a fixed height for the container
-    justifyContent: 'center', // Center the image vertically within the container
+    height: 215,
+    justifyContent: 'center', 
   },
   membershipImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Ensure the image fits within the container without being cut off
+    resizeMode: 'contain', 
   },
 });

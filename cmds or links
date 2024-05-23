@@ -1,0 +1,14 @@
+How to push changes you made to GitHub:
+1. git add .
+2. git commit -m "small changes"
+3. git push origin main
+ -------------------------------------------
+
+Link for icons:
+https://www.freepik.com/search?format=search&last_filter=query&last_value=supplements&query=supplements&type=icon
+
+--------------------------------------------
+
+Good tutorial for styling:
+https://blog.logrocket.com/react-native-styling-tutorial-examples/
+

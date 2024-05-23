@@ -30,9 +30,7 @@ export default function Bottomafterlogin() {
             iconName= focused ? 'person': 'person-outline';
             iconColor= focused ? 'blue' : 'white';
           }
-          // Add similar blocks for other tabs as needed
 
-          // Return an Ionicons component with the corresponding icon name
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}

@@ -4,7 +4,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
-// Firebase configuration
+
 const firebaseConfig = {
   apiKey: "AIzaSyDrSb4tLwIq0Oh_7bsKst95Po3n20-i10Q",
   authDomain: "gym-market.firebaseapp.com",
@@ -15,7 +15,7 @@ const firebaseConfig = {
   measurementId: "G-WHN1M0P7KC"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 
@@ -93,7 +93,7 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = () => {
-    // Add Google sign-in functionality here
+   
   };
 
   return (

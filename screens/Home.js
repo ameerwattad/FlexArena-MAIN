@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import Slideshow from 'react-native-image-slider-show';
 import { Rating } from 'react-native-ratings';
+import DarkModeContext from './settings/DarkMode'; // Import DarkModeContext
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
+  const { isDarkMode } = useContext(DarkModeContext); // Access the dark mode state
 
   const handlePress = () => {
     navigation.navigate('Home');
@@ -25,11 +27,11 @@ export default function Home() {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.container}>
-        <View style={styles.blueContainer}>
+    <ScrollView contentContainerStyle={[styles.scrollViewContent, isDarkMode && styles.darkScrollViewContent]}>
+      <View style={[styles.container, isDarkMode && styles.darkContainer]}>
+        <View style={[styles.blueContainer, isDarkMode && styles.darkBlueContainer]}>
           <View style={styles.searchContainer}>
-            <Searchbar placeholder="Search" style={styles.searchbar} />
+            <Searchbar placeholder="Search" style={[styles.searchbar, isDarkMode && styles.darkSearchbar]} />
             <TouchableOpacity onPress={() => console.log("Button pressed")} style={styles.iconContainer}>
               <Image source={require('../assets/images/reorder-horizontal.png')} style={styles.iconImage} />
             </TouchableOpacity>
@@ -42,8 +44,8 @@ export default function Home() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.topContainer}>
-          <Text style={styles.specialPicksText}>Special Picks for You!</Text>
+        <View style={[styles.topContainer, isDarkMode && styles.darkTopContainer]}>
+          <Text style={[styles.specialPicksText, isDarkMode && styles.darkSpecialPicksText]}>Special Picks for You!</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.topCategoriesContainer}>
               {[
@@ -55,8 +57,8 @@ export default function Home() {
               ].map((category, index) => (
                 <View key={index} style={styles.topCategoryItem}>
                   <Image source={category.image} style={styles.topCarouselImage} />
-                  <Text style={styles.categoryText}>{category.name}</Text>
-                  <Text style={styles.categoryDescription}>{category.description}</Text>
+                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{category.name}</Text>
+                  <Text style={[styles.categoryDescription, isDarkMode && styles.darkCategoryDescription]}>{category.description}</Text>
                   <Rating
                     type='star'
                     ratingCount={5}
@@ -86,8 +88,8 @@ export default function Home() {
           />
         </View>
 
-        <View style={styles.categoriesContainer}>
-          <Text style={styles.categoryHeaderText}>Shop by Category</Text>
+        <View style={[styles.categoriesContainer, isDarkMode && styles.darkCategoriesContainer]}>
+          <Text style={[styles.categoryHeaderText, isDarkMode && styles.darkCategoryHeaderText]}>Shop by Category</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.categoryItemsContainer}>
               {[
@@ -99,7 +101,7 @@ export default function Home() {
               ].map((category, index) => (
                 <View key={index} style={styles.categoryItem}>
                   <Image source={category.image} style={styles.carouselImage} />
-                  <Text style={styles.categoryText}>{category.name}</Text>
+                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{category.name}</Text>
                 </View>
               ))}
             </View>
@@ -114,11 +116,17 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
   },
+  darkScrollViewContent: {
+    backgroundColor: '#000', // Dark mode background color for ScrollView
+  },
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     paddingTop: 0,
     backgroundColor: '#F1FAFE',
+  },
+  darkContainer: {
+    backgroundColor: '#000', // Dark mode background color
   },
   touchable: {
     width: '100%',
@@ -128,6 +136,9 @@ const styles = StyleSheet.create({
     height: 80,
     backgroundColor: 'lightblue',
     justifyContent: 'center',
+  },
+  darkBlueContainer: {
+    backgroundColor: '#444', // Dark mode background color for blue container
   },
   searchContainer: {
     flexDirection: 'row',
@@ -139,6 +150,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     color: 'black',
     flex: 1,
+  },
+  darkSearchbar: {
+    backgroundColor: '#555', // Dark mode background color for search bar
+    color: 'white', // Dark mode text color for search bar
   },
   iconContainer: {
     padding: 10,
@@ -152,17 +167,26 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 20,
     paddingHorizontal: 10,
-    height:290,
+    height: 290,
+  },
+  darkTopContainer: {
+    backgroundColor: '#222', // Dark mode background color for top container
   },
   specialPicksText: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 40,
   },
+  darkSpecialPicksText: {
+    color: 'white', // Dark mode text color for special picks text
+  },
   categoryHeaderText: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 40,
+  },
+  darkCategoryHeaderText: {
+    color: 'white', // Dark mode text color for category header
   },
   topCategoriesContainer: {
     flexDirection: 'row',
@@ -170,13 +194,13 @@ const styles = StyleSheet.create({
   topCategoryItem: {
     alignItems: 'center',
     marginHorizontal: 20,
-    width: 150, 
+    width: 150,
   },
   topCarouselImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 5, 
+    marginBottom: 5,
   },
   categoryText: {
     fontSize: 16,
@@ -184,10 +208,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
   },
+  darkCategoryText: {
+    color: 'white', // Dark mode text color for categories
+  },
   categoryDescription: {
     fontSize: 12,
     textAlign: 'center',
-    marginBottom: 10, 
+    marginBottom: 10,
+  },
+  darkCategoryDescription: {
+    color: 'gray', // Dark mode description text color for categories
   },
   rating: {
     marginTop: 10,
@@ -205,32 +235,35 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     backgroundColor: 'white',
     marginTop: 20,
-    marginBottom: 20, 
+    marginBottom: 20,
     paddingHorizontal: 10,
   },
+  darkCategoriesContainer: {
+    backgroundColor: '#333', // Dark mode background color for categories container
+  },
   categoryItemsContainer: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
   },
   categoryItem: {
     alignItems: 'center',
-    marginHorizontal: 12, 
-    width: 100, 
+    marginHorizontal: 12,
+    width: 100,
   },
   carouselImage: {
     width: 60,
     height: 60,
   },
   membershipContainer: {
-    width: screenWidth, 
-    alignSelf: 'center', 
+    width: screenWidth,
+    alignSelf: 'center',
     marginBottom: -50,
     marginTop: -22,
     height: 215,
-    justifyContent: 'center', 
+    justifyContent: 'center',
   },
   membershipImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', 
+    resizeMode: 'contain',
   },
 });

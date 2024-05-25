@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View,Image,ImageBackground } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { DarkModeProvider } from './screens/settings/DarkMode'
 import Membership from './screens/Membership';
 import Home from './screens/Home';
 import Login from './screens/Login';
@@ -18,9 +18,9 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    
+    <DarkModeProvider>
     <NavigationContainer >
-    <Stack.Navigator initialRouteName='Bottom'>
+    <Stack.Navigator initialRouteName='Search'>
     <Stack.Screen name="Bottom" component={Bottom} options={{ headerShown: false }} />
     <Stack.Screen name='Bottomafterlogin' component={Bottomafterlogin} options={{headerShown:false}}/>
       <Stack.Screen name='Home'  component={Home} />
@@ -35,7 +35,7 @@ export default function App() {
     
     </Stack.Navigator>
     </NavigationContainer>
-   
+    </DarkModeProvider>
   );
 }
 

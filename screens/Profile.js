@@ -109,8 +109,42 @@ export default function Profile({ navigation }) {
           </View>
         </View>
         <View style={styles.bottomContainer}>
+          <View style={styles.darkModeToggleContainer}>
+            <Image source={require('../assets/images/ProfilePics/DarkMode.png')} style={styles.darkModeIcon} />
+            <Text style={styles.darkModeText}>Dark Mode</Text>
+            <Switch value={isDarkMode} onValueChange={toggleDarkMode} style={styles.darkModeSwitch} />
+          </View>
+            
+          <View style={styles.editProfileButtonContainer}>
+            <TouchableOpacity style={styles.editProfileButton}>
+              <Image source={require('../assets/images/Profile.png')} style={styles.editProfileIcon} />
+              <Text style={styles.editProfileText}>Edit Profile</Text>
+              <Image source={require('../assets/images/ProfilePics/next.png')} style={styles.arrowIcon} />
+
+            </TouchableOpacity>
+          </View>
+
+
+          <View style={styles.changePasswordButtonContainer}>
+            <TouchableOpacity style={styles.changePasswordButton}>
+              <Image source={require('../assets/images/ProfilePics/password.png')} style={styles.changePasswordIcon} />
+              <Text style={styles.changePasswordText}>Change Password</Text>
+              <Image source={require('../assets/images/ProfilePics/next.png')} style={styles.changePasswordArrowIcon} />
+            </TouchableOpacity>
+          </View>
+
+
+          <View style={styles.settingsButtonContainer}>
+            <TouchableOpacity style={styles.settingsButton}>
+              <Image source={require('../assets/images/ProfilePics/setting.png')} style={styles.settingsIcon} />
+              <Text style={styles.settingsText}>Settings</Text>
+              <Image source={require('../assets/images/ProfilePics/next.png')} style={styles.settingsArrowIcon} />
+            </TouchableOpacity>
+          </View>
+
+
           {user && (
-            <View style={styles.signout}>
+            <View style={styles.signoutContainer}>
               <TouchableOpacity onPress={handleLogout}>
                 <Card>
                   <Card.Content style={[styles.signoutcontent, isDarkMode && styles.darkSignoutContent]}>
@@ -120,17 +154,6 @@ export default function Profile({ navigation }) {
               </TouchableOpacity>
             </View>
           )}
-          <View style={styles.darkModeToggle}>
-            <Image source={require('../assets/images/ProfilePics/DarkMode.png')} style={styles.darkModeIcon} />
-            <Text style={styles.darkModeText}>Dark Mode</Text>
-            <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
-          </View>
-
-          {/* Edit Profile */}
-          <TouchableOpacity style={styles.editProfileButton}>
-            <Image source={require('../assets/images/Profile.png')} style={styles.editProfileIcon} />
-            <Text style={styles.editProfileText}>Edit Profile</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </PaperProvider>
@@ -149,14 +172,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#333', // Dark mode background color
   },
   profileContainer: {
-    width: 420,
-    height: 200,
+    width: 415,
+    height: 215,
     backgroundColor: '#B3D8F6', // Light grey color for upper container
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 16,
     marginTop: -20,
+    paddingTop: 20, // Adjusted padding to fit the profile picture
   },
   profileImage: {
     width: 100,
@@ -182,17 +205,18 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     flex: 1,
-    width: 420,
-    height: 900,
+    width: 415,
+    marginBottom:-17,
     alignItems: 'center',
     backgroundColor: '#D9E6F1', // Grey color for bottom container
     paddingVertical: 16,
-    marginTop: -20,
-    paddingTop: 420,
+    paddingTop: 20, // Adjusted padding to fit content
+    justifyContent: 'flex-end', // Move content to the bottom
   },
-  signout: {
+  signoutContainer: {
+    position: 'absolute',
+    bottom: 20,
     width: '80%',
-    marginBottom: 16,
   },
   signoutcontent: {
     backgroundColor: '#add8e6',
@@ -217,42 +241,113 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  darkModeToggle: {
+  darkModeToggleContainer: {
+    position: 'absolute',
+    top: 10, // Adjust as needed
+    left: 20, // Adjust as needed
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 420,
-    right: 20,
+    marginTop:20,
   },
   darkModeIcon: {
     width: 50,
     height: 50,
-    marginRight: 30, // Decrease this value to move the icon closer to the text
-    marginBottom: 10,
+    marginRight: 10, // Adjusted margin to fit content better
   },
   darkModeText: {
     fontSize: 16,
     color: '#000', // Light mode text color
-    marginLeft: 5, // Decrease this value to move the text closer to the icon
-    marginBottom: 10,
-    marginRight: 150,
     fontWeight: 'bold',
+    marginLeft:20,
+  },
+  darkModeSwitch: {
+    position: 'absolute',
+    top: 10, // Adjust as needed
+    right: 20, // Adjust as needed
+    marginRight:-220,
+  },
+  editProfileButtonContainer: {
+    position: 'absolute',
+    top: 100, // Adjust as needed
+    left: 20, // Adjust as needed
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop:20,
   },
   editProfileButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 340,
-    right: 220,
   },
   editProfileIcon: {
     width: 50,
     height: 50,
-    marginRight:40,
+    marginRight: 10, // Adjusted margin to fit content better
   },
   editProfileText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000', // Light mode text color
+    marginLeft:20,
+  },
+  arrowIcon: {
+    width: 30,
+    height: 30,
+    marginLeft:160, // Adjust as needed to position the arrow correctly
+  },
+  changePasswordButtonContainer: {
+    position: 'absolute',
+    top: 170, // Adjust as needed
+    left: 20, // Adjust as needed
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  changePasswordButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  changePasswordIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 10, // Adjusted margin to fit content better
+  },
+  changePasswordText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000', // Light mode text color
+    marginLeft: 20,
+  },
+  changePasswordArrowIcon: {
+    width: 30,
+    height: 30,
+    marginLeft: 107, // Adjust as needed to position the arrow correctly
+  },
+  settingsButtonContainer: {
+    position: 'absolute',
+    top: 240, // Adjust as needed
+    left: 20, // Adjust as needed
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 40,
+  },
+  settingsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 10, // Adjusted margin to fit content better
+  },
+  settingsText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000', // Light mode text color
+    marginLeft: 20,
+  },
+  settingsArrowIcon: {
+    width: 30,
+    height: 30,
+    marginLeft: 181, // Adjust as needed to position the arrow correctly
   },
 });

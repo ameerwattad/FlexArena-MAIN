@@ -13,6 +13,11 @@ import Machines from './screens/Machines';
 import Watches from './screens/Watches';
 import Accessories from './screens/Accessories';
 import Bottomafterlogin from './screens/Bottomafterlogin';
+import BugReport from './screens/BugReport';
+import ContactUsScreen from './screens/ContactUsScreen';
+import ProfileEdit from './screens/ProfileEdit';
+import ProductDetail from './screens/Data/ProductDetail';
+import ProductData from './screens/Data/ProductData';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +37,11 @@ export default function App() {
       <Stack.Screen name='Machines' component={Machines}/> 
       <Stack.Screen name='Watches' component={Watches}/>
       <Stack.Screen name='Accessories' component={Accessories}/>
-    
+      <Stack.Screen name='BugReport' component={BugReport}/>
+      <Stack.Screen name="ContactUsScreen" component={ContactUsScreen}/>
+      <Stack.Screen name="ProfileEdit" component={ProfileEdit}/>
+      <Stack.Screen name="ProductDetail" component={ProductDetail}/>
+
     </Stack.Navigator>
     </NavigationContainer>
     </DarkModeProvider>

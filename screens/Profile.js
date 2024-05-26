@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  Switch,
+  Image,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { Card, Menu, Provider as PaperProvider, Switch } from 'react-native-paper';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
 import DarkModeContext from './settings/DarkMode'; // Adjust the path as necessary
+import BugReport from './BugReport';
+import ContactUsScreen from './ContactUsScreen';
+import ProfileEdit from './ProfileEdit';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDrSb4tLwIq0Oh_7bsKst95Po3n20-i10Q",
@@ -23,6 +36,11 @@ export default function Profile({ navigation }) {
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [form, setForm] = useState({
+    darkMode: false,
+    emailNotifications: true,
+    pushNotifications: false,
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -72,6 +90,28 @@ export default function Profile({ navigation }) {
     }
   };
 
+  const showImagePickerOptions = () => {
+    Alert.alert(
+      "Select an option",
+      "Choose from where you want to select the image",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Choose from Library",
+          onPress: pickImage,
+        },
+        {
+          text: "Take a Photo",
+          onPress: takePicture,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -83,271 +123,243 @@ export default function Profile({ navigation }) {
   };
 
   return (
-    <PaperProvider>
-      <View style={[styles.container, isDarkMode && styles.darkContainer]}>
-        <View style={styles.profileContainer}>
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            anchor={
-              <TouchableOpacity onPress={() => setMenuVisible(true)}>
-                {image ? (
-                  <Image source={{ uri: image }} style={styles.profileImage} />
-                ) : (
-                  <Image source={require('../assets/images/Profile.png')} style={styles.profileImage} />
-                )}
-              </TouchableOpacity>
-            }
-            contentStyle={[styles.menu, isDarkMode && styles.darkMenu]}
-          >
-            <Menu.Item onPress={takePicture} title="Take a Photo" titleStyle={styles.menuItem} />
-            <Menu.Item onPress={pickImage} title="Choose from Library" titleStyle={styles.menuItem} />
-          </Menu>
-          <View style={styles.welcomeContainer}>
-            <Text style={[styles.title, isDarkMode && styles.darkTitle]}>Welcome</Text>
-            {user && <Text style={[styles.email, isDarkMode && styles.darkEmail]}>{user.email}</Text>}
-          </View>
-        </View>
-        <View style={styles.bottomContainer}>
-          <View style={styles.darkModeToggleContainer}>
-            <Image source={require('../assets/images/ProfilePics/DarkMode.png')} style={styles.darkModeIcon} />
-            <Text style={styles.darkModeText}>Dark Mode</Text>
-            <Switch value={isDarkMode} onValueChange={toggleDarkMode} style={styles.darkModeSwitch} />
-          </View>
-            
-          <View style={styles.editProfileButtonContainer}>
-            <TouchableOpacity style={styles.editProfileButton}>
-              <Image source={require('../assets/images/Profile.png')} style={styles.editProfileIcon} />
-              <Text style={styles.editProfileText}>Edit Profile</Text>
-              <Image source={require('../assets/images/ProfilePics/next.png')} style={styles.arrowIcon} />
-
+    <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
+      <View style={styles.profile}>
+        <TouchableOpacity onPress={showImagePickerOptions}>
+          <View style={styles.profileAvatarWrapper}>
+            <Image
+              alt=""
+              source={image ? { uri: image } : require('../assets/images/Profile.png')}
+              style={styles.profileAvatar}
+            />
+            <TouchableOpacity onPress={showImagePickerOptions}>
+              <View style={styles.profileAction}>
+                <FeatherIcon color="#fff" name="edit-3" size={15} />
+              </View>
             </TouchableOpacity>
           </View>
+        </TouchableOpacity>
 
-
-          <View style={styles.changePasswordButtonContainer}>
-            <TouchableOpacity style={styles.changePasswordButton}>
-              <Image source={require('../assets/images/ProfilePics/password.png')} style={styles.changePasswordIcon} />
-              <Text style={styles.changePasswordText}>Change Password</Text>
-              <Image source={require('../assets/images/ProfilePics/next.png')} style={styles.changePasswordArrowIcon} />
-            </TouchableOpacity>
-          </View>
-
-
-          <View style={styles.settingsButtonContainer}>
-            <TouchableOpacity style={styles.settingsButton}>
-              <Image source={require('../assets/images/ProfilePics/setting.png')} style={styles.settingsIcon} />
-              <Text style={styles.settingsText}>Settings</Text>
-              <Image source={require('../assets/images/ProfilePics/next.png')} style={styles.settingsArrowIcon} />
-            </TouchableOpacity>
-          </View>
-
-
-          {user && (
-            <View style={styles.signoutContainer}>
-              <TouchableOpacity onPress={handleLogout}>
-                <Card>
-                  <Card.Content style={[styles.signoutcontent, isDarkMode && styles.darkSignoutContent]}>
-                    <Text style={styles.signoutTextcontent}>Sign out</Text>
-                  </Card.Content>
-                </Card>
-              </TouchableOpacity>
-            </View>
-          )}
+        <View>
+          <Text style={styles.profileName}>{user ? user.email : 'Guest'}</Text>
+          <Text style={styles.profileAddress}>
+            Tel Aviv
+          </Text>
         </View>
       </View>
-    </PaperProvider>
+
+      <ScrollView>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Preferences</Text>
+
+          <TouchableOpacity style={styles.row} onPress={()=> navigation.navigate('ProfileEdit')}>
+            <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
+              <FeatherIcon color="#fff" name="user" size={20} />
+            </View>
+
+            <Text style={styles.rowLabel}>Edit Profile</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          </TouchableOpacity>
+
+
+          <View style={styles.row}>
+            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
+              <FeatherIcon color="#fff" name="moon" size={20} />
+            </View>
+
+            <Text style={styles.rowLabel}>Dark Mode</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <Switch
+              onValueChange={toggleDarkMode}
+              value={isDarkMode}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
+              <FeatherIcon color="#fff" name="at-sign" size={20} />
+            </View>
+
+            <Text style={styles.rowLabel}>Email Notifications</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <Switch
+              onValueChange={emailNotifications => setForm({ ...form, emailNotifications })}
+              value={form.emailNotifications}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
+              <FeatherIcon color="#fff" name="bell" size={20} />
+            </View>
+
+            <Text style={styles.rowLabel}>Push Notifications</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <Switch
+              onValueChange={pushNotifications => setForm({ ...form, pushNotifications })}
+              value={form.pushNotifications}
+            />
+          </View>
+
+          
+
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Resources</Text>
+
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('BugReport')}>
+          <View style={[styles.rowIcon, { backgroundColor: '#8e8d91' }]}>
+          <FeatherIcon color="#fff" name="flag" size={20} />
+          </View>
+          <Text style={styles.rowLabel}>Report Bug</Text>
+          <View style={styles.rowSpacer} />
+          <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ContactUsScreen')}>
+            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
+              <FeatherIcon color="#fff" name="mail" size={20} />
+            </View>
+
+            <Text style={styles.rowLabel}>Contact Us</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          </TouchableOpacity>
+
+     
+        </View>
+
+        {user && (
+          <View style={styles.signoutContainer}>
+            <TouchableOpacity onPress={handleLogout}>
+              <View style={[styles.signoutButton, isDarkMode && styles.darkSignoutButton]}>
+                <Text style={styles.signoutText}>Sign out</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', // Light mode background color
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    padding: 16,
+    backgroundColor: '#fff',
   },
   darkContainer: {
-    backgroundColor: '#333', // Dark mode background color
+    backgroundColor: '#333',
   },
-  profileContainer: {
-    width: 415,
-    height: 215,
-    backgroundColor: '#B3D8F6', // Light grey color for upper container
+  profile: {
+    padding: 24,
+    backgroundColor: '#fff',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileAvatarWrapper: {
+    position: 'relative',
+  },
+  profileAvatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 9999,
+  },
+  profileAction: {
+    position: 'absolute',
+    right: -4,
+    bottom: -10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 28,
+    height: 28,
+    borderRadius: 9999,
+    backgroundColor: '#007bff',
+  },
+  profileName: {
+    marginTop: 20,
+    fontSize: 19,
+    fontWeight: '600',
+    color: '#414d63',
+    textAlign: 'center',
+  },
+  profileAddress: {
+    marginTop: 5,
+    fontSize: 16,
+    color: '#989898',
+    textAlign: 'center',
+  },
+  section: {
+    paddingHorizontal: 24,
+  },
+  sectionTitle: {
+    paddingVertical: 12,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9e9e9e',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: -20,
-    paddingTop: 20, // Adjusted padding to fit the profile picture
+    justifyContent: 'flex-start',
+    height: 50,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
+    marginBottom: 12,
+    paddingLeft: 12,
+    paddingRight: 12,
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  welcomeContainer: {
-    marginLeft: 16,
-  },
-  title: {
-    fontSize: 24,
-    color: '#000', // Light mode text color
-  },
-  darkTitle: {
-    color: '#fff', // Dark mode text color
-  },
-  email: {
-    fontSize: 18,
-    color: '#000', // Light mode text color
-  },
-  darkEmail: {
-    color: '#fff', // Dark mode text color
-  },
-  bottomContainer: {
-    flex: 1,
-    width: 415,
-    marginBottom:-17,
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 9999,
+    marginRight: 12,
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D9E6F1', // Grey color for bottom container
-    paddingVertical: 16,
-    paddingTop: 20, // Adjusted padding to fit content
-    justifyContent: 'flex-end', // Move content to the bottom
+    justifyContent: 'center',
+  },
+  rowLabel: {
+    fontSize: 17,
+    fontWeight: '400',
+    color: '#0c0c0c',
+  },
+  rowSpacer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
   },
   signoutContainer: {
-    position: 'absolute',
-    bottom: 20,
-    width: '80%',
-  },
-  signoutcontent: {
-    backgroundColor: '#add8e6',
-    fontSize: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
   },
-  darkSignoutContent: {
-    backgroundColor: '#666', // Dark mode background color for signout button
+  signoutButton: {
+    backgroundColor: '#ff3b30',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
   },
-  signoutTextcontent: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  darkSignoutButton: {
+    backgroundColor: '#cc0000',
   },
-  menu: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 10,
-  },
-  darkMenu: {
-    backgroundColor: '#444', // Dark mode background color for menu
-  },
-  menuItem: {
+  signoutText: {
+    color: '#fff',
     fontSize: 16,
-    color: '#333',
-  },
-  darkModeToggleContainer: {
-    position: 'absolute',
-    top: 10, // Adjust as needed
-    left: 20, // Adjust as needed
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop:20,
-  },
-  darkModeIcon: {
-    width: 50,
-    height: 50,
-    marginRight: 10, // Adjusted margin to fit content better
-  },
-  darkModeText: {
-    fontSize: 16,
-    color: '#000', // Light mode text color
-    fontWeight: 'bold',
-    marginLeft:20,
-  },
-  darkModeSwitch: {
-    position: 'absolute',
-    top: 10, // Adjust as needed
-    right: 20, // Adjust as needed
-    marginRight:-220,
-  },
-  editProfileButtonContainer: {
-    position: 'absolute',
-    top: 100, // Adjust as needed
-    left: 20, // Adjust as needed
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop:20,
-  },
-  editProfileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  editProfileIcon: {
-    width: 50,
-    height: 50,
-    marginRight: 10, // Adjusted margin to fit content better
-  },
-  editProfileText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000', // Light mode text color
-    marginLeft:20,
-  },
-  arrowIcon: {
-    width: 30,
-    height: 30,
-    marginLeft:160, // Adjust as needed to position the arrow correctly
-  },
-  changePasswordButtonContainer: {
-    position: 'absolute',
-    top: 170, // Adjust as needed
-    left: 20, // Adjust as needed
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 30,
-  },
-  changePasswordButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  changePasswordIcon: {
-    width: 50,
-    height: 50,
-    marginRight: 10, // Adjusted margin to fit content better
-  },
-  changePasswordText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000', // Light mode text color
-    marginLeft: 20,
-  },
-  changePasswordArrowIcon: {
-    width: 30,
-    height: 30,
-    marginLeft: 107, // Adjust as needed to position the arrow correctly
-  },
-  settingsButtonContainer: {
-    position: 'absolute',
-    top: 240, // Adjust as needed
-    left: 20, // Adjust as needed
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 40,
-  },
-  settingsButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsIcon: {
-    width: 50,
-    height: 50,
-    marginRight: 10, // Adjusted margin to fit content better
-  },
-  settingsText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000', // Light mode text color
-    marginLeft: 20,
-  },
-  settingsArrowIcon: {
-    width: 30,
-    height: 30,
-    marginLeft: 181, // Adjust as needed to position the arrow correctly
+    fontWeight: '600',
   },
 });

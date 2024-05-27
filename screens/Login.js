@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { getStorage} from 'firebase/storage';
 
 
 const firebaseConfig = {
@@ -18,6 +19,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
+const storage = getStorage(app);
+
 
 const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication }) => {
   return (

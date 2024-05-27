@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import rncStyles from 'rncstyles';
-import RelatedProductsData from './RelatedProductData'; // Import related products data
+import RelatedProductsData from './RelatedProductData';
 import { Rating } from 'react-native-ratings';
 
 const ProductDetail = ({ route, navigation }) => {
@@ -12,21 +13,27 @@ const ProductDetail = ({ route, navigation }) => {
   const [totalPrice, setTotalPrice] = useState(product.price);
   const [reviews, setReviews] = useState([]);
 
-  const handleIncrement = () => {
-    setQuantity(quantity + 1);
-    setTotalPrice((quantity + 1) * product.price);
-  };
+  useEffect(() => {
+    loadReviews();
+  }, []);
 
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-      setTotalPrice((quantity - 1) * product.price);
+  const loadReviews = async () => {
+    try {
+      const savedReviews = await AsyncStorage.getItem(`product_reviews_${product.id}`);
+      if (savedReviews !== null) {
+        setReviews(JSON.parse(savedReviews));
+      }
+    } catch (error) {
+      console.error('Error loading reviews:', error);
     }
   };
 
-  const handleAddToCart = () => {
-    // Add logic to add the product to the cart
-    console.log('Product added to cart');
+  const saveReview = async (newReviews) => {
+    try {
+      await AsyncStorage.setItem(`product_reviews_${product.id}`, JSON.stringify(newReviews));
+    } catch (error) {
+      console.error('Error saving review:', error);
+    }
   };
 
   const handleSubmitReview = () => {
@@ -35,13 +42,14 @@ const ProductDetail = ({ route, navigation }) => {
         author: 'Your Name', // Change to user's name or remove this line if not needed
         comment: comment.trim(),
       };
-      setReviews([...reviews, newReview]);
+      const newReviews = [...reviews, newReview];
+      setReviews(newReviews);
       setComment('');
+      saveReview(newReviews);
     }
   };
 
   const handleRelatedProductPress = (relatedProduct) => {
-    // Navigate to the related product details screen
     navigation.navigate('ProductDetail', { product: relatedProduct });
   };
 
@@ -66,36 +74,24 @@ const ProductDetail = ({ route, navigation }) => {
           </Text>
         </View>
         <View style={rncStyles.mb2}>
-          {/* Display the price here */}
           <Text style={[rncStyles.fs4, rncStyles.textPrimary, rncStyles.textBold]}>
             Price: ${totalPrice}
           </Text>
         </View>
         <View style={[rncStyles.flexRow, rncStyles.mb2]}>
-          <TouchableOpacity
-            style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p1]}
-            onPress={handleDecrement}>
-            <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>-</Text>
-          </TouchableOpacity>
-          <View
-            style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p1, rncStyles.mx2]}>
-            <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>
-              {quantity}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p1]}
-            onPress={handleIncrement}>
-            <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>+</Text>
-          </TouchableOpacity>
+          {/* Quantity selection buttons */}
+       
         </View>
         <TouchableOpacity
           style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p2]}
-          onPress={handleAddToCart}>
+          onPress={() => console.log('Add to Cart pressed')}>
           <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>
             Add to Cart
           </Text>
         </TouchableOpacity>
+       
+
+   
         <View style={rncStyles.mb2}>
           <Text
             style={[rncStyles.mt4, rncStyles.fs5, rncStyles.textPrimary, rncStyles.textBold]}>
@@ -109,23 +105,23 @@ const ProductDetail = ({ route, navigation }) => {
               </Text>
             </View>
           ))}
+        </View>
+        <View style={rncStyles.mb2}>
           <TextInput
             placeholder="Add a comment..."
             style={[rncStyles.input, rncStyles.p1, rncStyles.mt2, rncStyles.border1, rncStyles.borderPrimary, rncStyles.rounded]}
             multiline={true}
             value={comment}
             onChangeText={text => setComment(text)}
-            onSubmitEditing={handleSubmitReview}
           />
-          <TouchableOpacity
-            style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p1, rncStyles.mt2]}
-            onPress={handleSubmitReview}>
-            <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>
-              Submit
-            </Text>
-          </TouchableOpacity>
         </View>
-        {/* Related Products Section */}
+        <TouchableOpacity
+          style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p2]}
+          onPress={handleSubmitReview}>
+          <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>
+            Submit Review
+          </Text>
+        </TouchableOpacity>
         <View style={rncStyles.mb2}>
           <Text
             style={[rncStyles.mt4, rncStyles.fs5, rncStyles.textPrimary, rncStyles.textBold]}>
@@ -158,10 +154,9 @@ const ProductDetail = ({ route, navigation }) => {
             ))}
           </ScrollView>
         </View>
-        {/* End of Related Products Section */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
 export default ProductDetail;

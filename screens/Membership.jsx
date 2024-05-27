@@ -39,7 +39,7 @@ const Membership = () => {
             <Text style={styles.benefitText}>Access to all gym facilities</Text>
           </View>
           <View style={styles.buyNowButton}>
-            <Text style={styles.buyNowButtonText}>Buy Now!</Text>
+            <Text style={styles.buyNowButtonText}>Add to Cart</Text>
           </View>
         </View>
 
@@ -63,7 +63,7 @@ const Membership = () => {
             <Text style={styles.benefitText}>Access to all gym facilities</Text>
           </View>
           <View style={styles.buyNowButton}>
-            <Text style={styles.buyNowButtonText}>Buy Now!</Text>
+            <Text style={styles.buyNowButtonText}>Add to Cart</Text>
           </View>
         </View>
 
@@ -86,7 +86,7 @@ const Membership = () => {
             <Text style={styles.benefitText}>Access to all gym facilities</Text>
           </View>
           <View style={styles.buyNowButton}>
-            <Text style={styles.buyNowButtonText}>Buy Now!</Text>
+            <Text style={styles.buyNowButtonText}>Add to Cart</Text>
           </View>
         </View>
 
@@ -109,7 +109,7 @@ const Membership = () => {
             <Text style={styles.benefitText}>Access to all gym facilities</Text>
           </View>
           <View style={styles.buyNowButton}>
-            <Text style={styles.buyNowButtonText}>Buy Now!</Text>
+            <Text style={styles.buyNowButtonText}>Add to Cart</Text>
           </View>
         </View>
 

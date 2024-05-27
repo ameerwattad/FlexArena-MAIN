@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import DarkModeContext from './settings/DarkMode'; // Adjust the path as necessary
-import { getAuth, reauthenticateWithCredential, updatePassword, updateEmail, EmailAuthProvider } from 'firebase/auth';
+import { getAuth, reauthenticateWithCredential, updatePassword, updateEmail, updateProfile, EmailAuthProvider } from 'firebase/auth';
 
 export default function ProfileEdit({ navigation }) {
   const { isDarkMode } = useContext(DarkModeContext);
@@ -73,6 +73,22 @@ export default function ProfileEdit({ navigation }) {
     }
   };
 
+  const handleSaveProfile = async () => {
+    try {
+      // Update display name
+      await updateProfile(user, { displayName: name });
+
+      // Prompt the user that the profile has been successfully updated
+      Alert.alert(
+        'Profile Updated',
+        'Your profile has been successfully updated.',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
       <ScrollView>
@@ -123,6 +139,12 @@ export default function ProfileEdit({ navigation }) {
           <TouchableOpacity onPress={handleChangeEmail}>
             <View style={styles.saveButton}>
               <Text style={styles.saveButtonText}>Change Email</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleSaveProfile}>
+            <View style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save Profile</Text>
             </View>
           </TouchableOpacity>
         </View>

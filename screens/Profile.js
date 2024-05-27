@@ -18,18 +18,7 @@ import DarkModeContext from './settings/DarkMode'; // Adjust the path as necessa
 import BugReport from './BugReport';
 import ContactUsScreen from './ContactUsScreen';
 import ProfileEdit from './ProfileEdit';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDrSb4tLwIq0Oh_7bsKst95Po3n20-i10Q",
-  authDomain: "gym-market.firebaseapp.com",
-  projectId: "gym-market",
-  storageBucket: "gym-market.appspot.com",
-  messagingSenderId: "229168445264",
-  appId: "1:229168445264:web:ed0c5ddc2aeaa463d29e55",
-  measurementId: "G-WHN1M0P7KC"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+import {auth} from './firebase';
 
 export default function Profile({ navigation }) {
   const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TextInput } from 'react-native';
 import rncStyles from 'rncstyles';
+import RelatedProductsData from './RelatedProductData'; // Import related products data
+import { Rating } from 'react-native-ratings';
 
-const ProductDetail = ({ route }) => {
+const ProductDetail = ({ route, navigation }) => {
   const { product } = route.params;
 
   const [quantity, setQuantity] = useState(1);
@@ -36,6 +38,11 @@ const ProductDetail = ({ route }) => {
       setReviews([...reviews, newReview]);
       setComment('');
     }
+  };
+
+  const handleRelatedProductPress = (relatedProduct) => {
+    // Navigate to the related product details screen
+    navigation.navigate('ProductDetail', { product: relatedProduct });
   };
 
   return (
@@ -118,6 +125,40 @@ const ProductDetail = ({ route }) => {
             </Text>
           </TouchableOpacity>
         </View>
+        {/* Related Products Section */}
+        <View style={rncStyles.mb2}>
+          <Text
+            style={[rncStyles.mt4, rncStyles.fs5, rncStyles.textPrimary, rncStyles.textBold]}>
+            Related Items
+          </Text>
+          <ScrollView horizontal={true} style={rncStyles.mt2}>
+            {RelatedProductsData[product.name] && RelatedProductsData[product.name].map((relatedProduct, index) => (
+              <TouchableOpacity key={index} style={[rncStyles.mr2, { maxWidth: 150, marginRight: 10 }]} onPress={() => handleRelatedProductPress(relatedProduct)}>
+                <Image
+                  resizeMode="contain"
+                  style={{ width: 100, height: 100 }}
+                  source={relatedProduct.image}
+                />
+                <Text style={[rncStyles.textCenter, { marginTop: 5 }]}>
+                  {relatedProduct.name.split(' ').reduce((acc, curr, index) => {
+                    const isNewLineNeeded = index % 2 === 0;
+                    return isNewLineNeeded ? `${acc}\n${curr}` : `${acc} ${curr}`;
+                  }, '')}
+                </Text>
+                <Rating
+                  type='star'
+                  ratingCount={5}
+                  imageSize={20}
+                  startingValue={relatedProduct.rating}
+                  readonly
+                  style={rncStyles.relatedProductRating}
+                />
+                <Text style={rncStyles.relatedProductPrice}>{`Price: $${relatedProduct.price.toFixed(2)}`}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+        {/* End of Related Products Section */}
       </ScrollView>
     </KeyboardAvoidingView>
   );

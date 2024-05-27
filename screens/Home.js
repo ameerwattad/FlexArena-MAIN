@@ -1,17 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import Slideshow from 'react-native-image-slider-show';
 import { Rating } from 'react-native-ratings';
-import DarkModeContext from './settings/DarkMode';
 import ProductData from './Data/ProductData'; // Import ProductData
+import SearchAutocomplete from './Data/SearchAutoComplete'; 
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
-  const { isDarkMode } = useContext(DarkModeContext);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchSubmit = () => {
+    if (searchQuery) {
+      navigation.navigate('SearchResults', { searchQuery });
+    }
+  };
 
   const handleNavigation = (productId) => {
     const product = ProductData.find(item => item.id === productId);
@@ -23,8 +29,8 @@ export default function Home() {
   };
 
   const truncateDescription = (description) => {
-    if (description.length > 80) { // Adjust this value to fit the desired length
-      return `${description.substring(0, 50)}...`; // Limit description to 80 characters
+    if (description.length > 80) {
+      return `${description.substring(0, 50)}...`;
     }
     return description;
   };
@@ -36,15 +42,20 @@ export default function Home() {
   ];
 
   const specialPicksIds = [11, 12, 13, 14, 15];
-
   const specialPicks = ProductData.filter(product => specialPicksIds.includes(product.id));
 
   return (
-    <ScrollView contentContainerStyle={[styles.scrollViewContent, isDarkMode && styles.darkScrollViewContent]}>
-      <View style={[styles.container, isDarkMode && styles.darkContainer]}>
-        <View style={[styles.blueContainer, isDarkMode && styles.darkBlueContainer]}>
+    <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+      <View style={[styles.container]}>
+        <View style={[styles.blueContainer]}>
           <View style={styles.searchContainer}>
-            <Searchbar placeholder="Search" style={[styles.searchbar, isDarkMode && styles.darkSearchbar]} />
+            <Searchbar
+              placeholder="Search"
+              style={styles.searchbar}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={handleSearchSubmit}
+            />
             <TouchableOpacity onPress={() => console.log("Button pressed")} style={styles.iconContainer}>
               <Image source={require('../assets/images/reorder-horizontal.png')} style={styles.iconImage} />
             </TouchableOpacity>
@@ -57,15 +68,16 @@ export default function Home() {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.topContainer, isDarkMode && styles.darkTopContainer]}>
-          <Text style={[styles.specialPicksText, isDarkMode && styles.darkSpecialPicksText]}>Special Picks for You!</Text>
+        <View style={styles.topContainer}>
+          <Text style={styles.specialPicksText}>Special Picks for You!</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.topCategoriesContainer}>
               {specialPicks.map((product, index) => (
                 <TouchableOpacity key={index} style={styles.topCategoryItem} onPress={() => handleNavigation(product.id)}>
                   <Image source={product.image} style={styles.topCarouselImage} />
-                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{product.name}</Text>
-                  <Text style={[styles.categoryDescription, isDarkMode && styles.darkCategoryDescription]}>{truncateDescription(product.description)}</Text>
+                  <Text style={styles.categoryText}>{product.name}</Text>
+                  <Text style={styles.categoryDescription}>{truncateDescription(product.description)}</Text>
+                  <Text style={[styles.productPrice]}>{`Price: $${product.price.toFixed(2)}`}</Text>
                   <Rating
                     type='star'
                     ratingCount={5}
@@ -95,8 +107,8 @@ export default function Home() {
           />
         </View>
 
-        <View style={[styles.categoriesContainer, isDarkMode && styles.darkCategoriesContainer]}>
-          <Text style={[styles.categoryHeaderText, isDarkMode && styles.darkCategoryHeaderText]}>Shop by Category</Text>
+        <View style={styles.categoriesContainer}>
+          <Text style={styles.categoryHeaderText}>Shop by Category</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.categoryItemsContainer}>
               {[
@@ -108,7 +120,7 @@ export default function Home() {
               ].map((category, index) => (
                 <View key={index} style={styles.categoryItem}>
                   <Image source={category.image} style={styles.carouselImage} />
-                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{category.name}</Text>
+                  <Text style={styles.categoryText}>{category.name}</Text>
                 </View>
               ))}
             </View>
@@ -119,14 +131,9 @@ export default function Home() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
-  },
-  darkScrollViewContent: {
-    backgroundColor: '#000', // Dark mode background color for ScrollView
   },
   container: {
     flex: 1,
@@ -134,20 +141,10 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     backgroundColor: '#F1FAFE',
   },
-  darkContainer: {
-    backgroundColor: '#000', // Dark mode background color
-  },
-  touchable: {
-    width: '100%',
-    alignItems: 'center',
-  },
   blueContainer: {
     height: 80,
     backgroundColor: 'lightblue',
     justifyContent: 'center',
-  },
-  darkBlueContainer: {
-    backgroundColor: '#444', // Dark mode background color for blue container
   },
   searchContainer: {
     flexDirection: 'row',
@@ -159,10 +156,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     color: 'black',
     flex: 1,
-  },
-  darkSearchbar: {
-    backgroundColor: '#555', // Dark mode background color for search bar
-    color: 'white', // Dark mode text color for search bar
   },
   iconContainer: {
     padding: 10,
@@ -176,26 +169,12 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 20,
     paddingHorizontal: 10,
-    height: 290,
-  },
-  darkTopContainer: {
-    backgroundColor: '#222', // Dark mode background color for top container
+    height: 310,
   },
   specialPicksText: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 40,
-  },
-  darkSpecialPicksText: {
-    color: 'white', // Dark mode text color for special picks text
-  },
-  categoryHeaderText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 40,
-  },
-  darkCategoryHeaderText: {
-    color: 'white', // Dark mode text color for category header
   },
   topCategoriesContainer: {
     flexDirection: 'row',
@@ -217,17 +196,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
   },
-  darkCategoryText: {
-    color: 'white', // Dark mode text color for categories
-  },
   categoryDescription: {
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 10,
-  
   },
-  darkCategoryDescription: {
-    color: 'gray', // Dark mode description text color for categories
+  productPrice: {
+    fontSize: 14,
+    color: '#007AFF', // Default color for light mode
+    textAlign: 'center',
+    marginBottom: 5, // Add some margin at the bottom
   },
   rating: {
     marginTop: 10,
@@ -247,9 +225,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     paddingHorizontal: 10,
-  },
-  darkCategoriesContainer: {
-    backgroundColor: '#333', // Dark mode background color for categories container
   },
   categoryItemsContainer: {
     flexDirection: 'row',

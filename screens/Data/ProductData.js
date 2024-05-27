@@ -77,7 +77,7 @@ const ProductData = [
         description: 'Smart sports watch Garmin Forerunner 255S Music Whitestone color',
         image: require('../../assets/images/AllData/smartwatches/5.jpg'),
         rating: 3,
-        price:5000,
+        price:40,
       },
       {
         id: 12,

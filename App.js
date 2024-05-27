@@ -18,6 +18,7 @@ import ContactUsScreen from './screens/ContactUsScreen';
 import ProfileEdit from './screens/ProfileEdit';
 import ProductDetail from './screens/Data/ProductDetail';
 import ProductData from './screens/Data/ProductData';
+import SearchResults from './screens/Data/SearchResults';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,6 +42,8 @@ export default function App() {
       <Stack.Screen name="ContactUsScreen" component={ContactUsScreen}/>
       <Stack.Screen name="ProfileEdit" component={ProfileEdit}/>
       <Stack.Screen name="ProductDetail" component={ProductDetail}/>
+      <Stack.Screen name="SearchResults" component={SearchResults}/>
+   
 
     </Stack.Navigator>
     </NavigationContainer>

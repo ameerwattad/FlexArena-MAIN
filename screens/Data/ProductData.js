@@ -13,6 +13,7 @@ const ProductData = [
       description: 'Multi-trainer with Smith Meshin (built-in weights 200 kilos) - black',
       image: require('../../assets/images/AllData/gym machines/2.jpg'),
       rating: 5,
+      price:5000,
     },
     {
       id: 3,
@@ -20,6 +21,7 @@ const ProductData = [
       description: 'Professional adjustable crossover device',
       image: require('../../assets/images/AllData/gym machines/3.jpg'),
       rating: 3,
+      price:5000,
     },
     {
         id:4 ,
@@ -27,6 +29,7 @@ const ProductData = [
         description: 'Crossover device for professional functional training',
         image: require('../../assets/images/AllData/gym machines/4.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 5,
@@ -34,6 +37,7 @@ const ProductData = [
         description: 'Corner crossover',
         image: require('../../assets/images/AllData/gym machines/5.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 6,
@@ -41,6 +45,7 @@ const ProductData = [
         description: 'Smart watch for the third age with temporary built-in SIM Kidiwatch PapaWatch in black color',
         image: require('../../assets/images/AllData/smartwatches/1.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 7,
@@ -48,6 +53,7 @@ const ProductData = [
         description: 'Smart watch 43MM W10 Blackview in black color',
         image: require('../../assets/images/AllData/smartwatches/2.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 8,
@@ -55,6 +61,7 @@ const ProductData = [
         description: 'Smart watch 43MM W10 Blackview in Pink color',
         image: require('../../assets/images/AllData/smartwatches/3.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 10,
@@ -62,6 +69,7 @@ const ProductData = [
         description: 'Smart sports watch Garmin Forerunner 955 in white color',
         image: require('../../assets/images/AllData/smartwatches/4.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 11,
@@ -69,6 +77,7 @@ const ProductData = [
         description: 'Smart sports watch Garmin Forerunner 255S Music Whitestone color',
         image: require('../../assets/images/AllData/smartwatches/5.jpg'),
         rating: 3,
+        price:5000,
       },
       {
         id: 12,
@@ -76,6 +85,7 @@ const ProductData = [
         description: 'Branched-chain amino acids (BCAAs) are a group of essential amino acids that include leucine, isoleucine, and valine. They are widely used in the fitness community to support muscle growth, reduce muscle soreness, and improve exercise performance.',
         image: require('../../assets/images/AllData/supplements/1.png'),
         rating: 3,
+        price:5000,
       },
       {
         id: 13,
@@ -83,6 +93,7 @@ const ProductData = [
         description: 'Vitamin D3, also known as the sunshine vitamin, is essential for maintaining healthy bones and teeth, supporting immune function, and regulating mood. It is synthesized by the body when the skin is exposed to sunlight and is also available in supplement form.',
         image: require('../../assets/images/AllData/supplements/2.png'),
         rating: 3,
+        price:5000,
       },
       {
         id: 14,
@@ -90,6 +101,7 @@ const ProductData = [
         description: 'Creatine is a natural compound that plays a crucial role in the production of energy during high-intensity exercise. It helps increase muscle mass, strength, and power output.',
         image: require('../../assets/images/AllData/supplements/3.png'),
         rating: 3,
+        price:45,
       },
       {
         id: 15,
@@ -97,6 +109,7 @@ const ProductData = [
         description: 'Mass gainers are supplements designed to help individuals bulk up and gain weight. They typically contain a blend of protein, carbohydrates, and fats, providing a high-calorie source for muscle growth and recovery.',
         image: require('../../assets/images/AllData/supplements/4.png'),
         rating: 3,
+        price:5000,
       },
       {
         id: 16,
@@ -104,6 +117,7 @@ const ProductData = [
         description: 'Yes4All Double D Row Handle, Straight Bar 980LBS Cable Machine Accessories Attachment, LAT Pull Down V Bar for Weight Workout',
         image: require('../../assets/images/AllData/accessories/1.webp'),
         rating: 3,
+        price:5000,
       },
       {
         id: 17,
@@ -111,6 +125,7 @@ const ProductData = [
         description: 'Wrist Trainer Ball Auto-Start Wrist Strengthener Gyroscopic Forearm Exerciser Gyro Ball for Strengthen Arms, Fingers, Wrist Bones and Muscles',
         image: require('../../assets/images/AllData/accessories/2.webp'),
         rating: 3,
+        price:5000,
       },
       {
         id: 18,
@@ -118,6 +133,7 @@ const ProductData = [
         description: 'Ankle Strap',
         image: require('../../assets/images/AllData/accessories/3.webp'),
         rating: 3,
+        price:5000,
       },
       {
         id: 19,
@@ -125,6 +141,7 @@ const ProductData = [
         description: 'ATERCEL Workout Gloves for Men and Women, Exercise Gloves for Weight Lifting, Cycling, Gym, Training, Breathable and Snug fit ',
         image: require('../../assets/images/AllData/accessories/4.webp'),
         rating: 3,
+        price:5000,
       },
       {
         id: 20,
@@ -132,6 +149,7 @@ const ProductData = [
         description: 'HPYGN Exercise Handle, Replacement Fitness Equipment for Pilates, Yoga, Strength Trainer, Pull Down Home Gym Red, Grey, Blue Working Out Handle ',
         image: require('../../assets/images/AllData/accessories/5.webp'),
         rating: 3,
+        price:5000,
       },                                     
   ];
   

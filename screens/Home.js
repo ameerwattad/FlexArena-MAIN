@@ -4,27 +4,40 @@ import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import Slideshow from 'react-native-image-slider-show';
 import { Rating } from 'react-native-ratings';
-import DarkModeContext from './settings/DarkMode'; // Import DarkModeContext
+import DarkModeContext from './settings/DarkMode';
+import ProductData from './Data/ProductData'; // Import ProductData
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
-  const { isDarkMode } = useContext(DarkModeContext); // Access the dark mode state
+  const { isDarkMode } = useContext(DarkModeContext);
 
-  const handlePress = () => {
-    navigation.navigate('Home');
+  const handleNavigation = (productId) => {
+    const product = ProductData.find(item => item.id === productId);
+    if (product) {
+      navigation.navigate('ProductDetail', { product });
+    } else {
+      console.error(`Product with ID ${productId} not found`);
+    }
   };
 
-  const handleNavigation = () => {
-    navigation.navigate('Membership');
+  const truncateDescription = (description) => {
+    if (description.length > 80) { // Adjust this value to fit the desired length
+      return `${description.substring(0, 50)}...`; // Limit description to 80 characters
+    }
+    return description;
   };
-  
+
   const images = [
     { url: require('./../assets/images/SALES/smartwatch.png') },
     { url: require('./../assets/images/SALES/1.png') },
     { url: require('./../assets/images/SALES/30.png') },
   ];
+
+  const specialPicksIds = [11, 12, 13, 14, 15];
+
+  const specialPicks = ProductData.filter(product => specialPicksIds.includes(product.id));
 
   return (
     <ScrollView contentContainerStyle={[styles.scrollViewContent, isDarkMode && styles.darkScrollViewContent]}>
@@ -39,7 +52,7 @@ export default function Home() {
         </View>
 
         <View style={styles.membershipContainer}>
-          <TouchableOpacity onPress={handleNavigation}>
+          <TouchableOpacity onPress={() => navigation.navigate('Membership')}>
             <Image source={require('../assets/images/Membership/try.png')} style={styles.membershipImage} />
           </TouchableOpacity>
         </View>
@@ -48,26 +61,20 @@ export default function Home() {
           <Text style={[styles.specialPicksText, isDarkMode && styles.darkSpecialPicksText]}>Special Picks for You!</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.topCategoriesContainer}>
-              {[
-                { name: 'Creatine', description: 'Boost your strength and energy levels.', image: require('../assets/images/BestPicks/creatineBG.png'), rating: 4 },
-                { name: 'Mass Gainer', description: 'Gain weight and muscle mass effectively.', image: require('../assets/images/BestPicks/mass-gainerBG.png'), rating: 5 },
-                { name: 'Omega 3', description: 'Improve heart health and reduce inflammation.', image: require('../assets/images/BestPicks/omega3.webp'), rating: 3 },
-                { name: 'Vitamin D3', description: 'Support your bone health with Vitamin D3.', image: require('../assets/images/BestPicks/vitamind3.webp'), rating: 4 },
-                { name: 'Smart Watch', description: 'Track your fitness and stay connected.', image: require('../assets/images/BestPicks/smart-watchNG.png'), rating: 5 },
-              ].map((category, index) => (
-                <View key={index} style={styles.topCategoryItem}>
-                  <Image source={category.image} style={styles.topCarouselImage} />
-                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{category.name}</Text>
-                  <Text style={[styles.categoryDescription, isDarkMode && styles.darkCategoryDescription]}>{category.description}</Text>
+              {specialPicks.map((product, index) => (
+                <TouchableOpacity key={index} style={styles.topCategoryItem} onPress={() => handleNavigation(product.id)}>
+                  <Image source={product.image} style={styles.topCarouselImage} />
+                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{product.name}</Text>
+                  <Text style={[styles.categoryDescription, isDarkMode && styles.darkCategoryDescription]}>{truncateDescription(product.description)}</Text>
                   <Rating
                     type='star'
                     ratingCount={5}
                     imageSize={20}
-                    startingValue={category.rating}
+                    startingValue={product.rating}
                     readonly
                     style={styles.rating}
                   />
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </ScrollView>
@@ -76,7 +83,7 @@ export default function Home() {
         <View style={[styles.slideableContainer, { height: 200 }]}>
           <Slideshow
             dataSource={images}
-            height={200} // Adjust the height here
+            height={200}
             arrowSize={20}
             indicatorSize={20}
             overlay={false}
@@ -111,6 +118,8 @@ export default function Home() {
     </ScrollView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -215,6 +224,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 10,
+  
   },
   darkCategoryDescription: {
     color: 'gray', // Dark mode description text color for categories

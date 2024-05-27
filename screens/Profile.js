@@ -1,24 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {
-  SafeAreaView,
-  View,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  Switch,
-  Image,
-  StyleSheet,
-  Alert,
-} from 'react-native';
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Switch, Image, StyleSheet, Alert } from 'react-native';
+import { auth, storage } from './firebase';  // Import Firebase services
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { ref, uploadString, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
-import DarkModeContext from './settings/DarkMode'; // Adjust the path as necessary
+import DarkModeContext from './settings/DarkMode';
 import BugReport from './BugReport';
 import ContactUsScreen from './ContactUsScreen';
 import ProfileEdit from './ProfileEdit';
-import {auth} from './firebase';
 
 export default function Profile({ navigation }) {
   const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
@@ -32,12 +22,55 @@ export default function Profile({ navigation }) {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      if (user) {
+        const imageURL = await fetchProfileImage(user.uid);
+        setImage(imageURL);
+      }
     });
 
     return () => unsubscribe();
   }, []);
+
+  const uploadProfileImage = async (imageUri, userId) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const imageURLRef = ref(storage, `profileImages/${userId}`);
+      await uploadBlob(imageURLRef, blob);
+      console.log('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
+  
+  const uploadBlob = async (ref, blob) => {
+    return new Promise((resolve, reject) => {
+      const task = uploadBytesResumable(ref, blob);
+      task.on('state_changed', 
+        () => {}, 
+        error => {
+          reject(error);
+        }, 
+        () => {
+          resolve();
+        }
+      );
+    });
+  };
+  
+  const fetchProfileImage = async (userId) => {
+    try {
+      const imageURLRef = ref(storage, `profileImages/${userId}`);
+      const url = await getDownloadURL(imageURLRef);
+      return url;
+    } catch (error) {
+      console.error('Error fetching profile image:', error);
+      return null;
+    }
+  };
+  
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -56,8 +89,13 @@ export default function Profile({ navigation }) {
     if (!result.cancelled) {
       setImage(result.assets[0].uri);
       setMenuVisible(false);
+      if (user) {
+        uploadProfileImage(result.assets[0].uri, user.uid);
+      }
     }
   };
+
+
 
   const takePicture = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -76,6 +114,9 @@ export default function Profile({ navigation }) {
     if (!result.cancelled) {
       setImage(result.assets[0].uri);
       setMenuVisible(false);
+      if (user) {
+        uploadProfileImage(result.assets[0].uri, user.uid);
+      }
     }
   };
 
@@ -110,6 +151,7 @@ export default function Profile({ navigation }) {
       console.error('Logout error:', error.message);
     }
   };
+
 
   return (
     <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
@@ -208,26 +250,26 @@ export default function Profile({ navigation }) {
 
           <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('BugReport')}>
           <View style={[styles.rowIcon, { backgroundColor: '#8e8d91' }]}>
-          <FeatherIcon color="#fff" name="flag" size={20} />
+          <FeatherIcon color="#fff" name="slack" size={20} />
           </View>
-          <Text style={styles.rowLabel}>Report Bug</Text>
+          <Text style={styles.rowLabel}>Bug Report</Text>
+          <View style={styles.rowSpacer} />
+          <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Feedback</Text>
+
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ContactUsScreen')}>
+          <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
+          <FeatherIcon color="#fff" name="message-circle" size={20} />
+          </View>
+          <Text style={styles.rowLabel}>Contact Us</Text>
           <View style={styles.rowSpacer} />
           <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ContactUsScreen')}>
-            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
-              <FeatherIcon color="#fff" name="mail" size={20} />
-            </View>
-
-            <Text style={styles.rowLabel}>Contact Us</Text>
-
-            <View style={styles.rowSpacer} />
-
-            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
-          </TouchableOpacity>
-
-     
         </View>
 
         {user && (

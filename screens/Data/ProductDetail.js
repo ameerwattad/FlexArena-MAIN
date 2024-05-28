@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TextInput } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TextInput, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import rncStyles from 'rncstyles';
+import rncStyles from 'rncstyles'; // assuming this is a valid import
 import RelatedProductsData from './RelatedProductData';
 import { Rating } from 'react-native-ratings';
 
@@ -16,6 +16,11 @@ const ProductDetail = ({ route, navigation }) => {
   useEffect(() => {
     loadReviews();
   }, []);
+
+  const addToCart = () => {
+    navigation.navigate('Cart', { product: { ...product, quantity: 1 } });
+  };
+  
 
   const loadReviews = async () => {
     try {
@@ -53,6 +58,18 @@ const ProductDetail = ({ route, navigation }) => {
     navigation.navigate('ProductDetail', { product: relatedProduct });
   };
 
+  const incrementQuantity = () => {
+    setQuantity(quantity + 1);
+    setTotalPrice(product.price * (quantity + 1));
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+      setTotalPrice(product.price * (quantity - 1));
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={[rncStyles.h100, rncStyles.bgWhite]} behavior="padding" enabled>
       <ScrollView contentContainerStyle={rncStyles.p2}>
@@ -79,19 +96,22 @@ const ProductDetail = ({ route, navigation }) => {
           </Text>
         </View>
         <View style={[rncStyles.flexRow, rncStyles.mb2]}>
-          {/* Quantity selection buttons */}
-       
+          <TouchableOpacity onPress={decrementQuantity} style={[rncStyles.btnPrimary, rncStyles.rounded, styles.quantityButton]}>
+            <Text style={styles.quantityButtonText}>-</Text>
+          </TouchableOpacity>
+          <Text style={[rncStyles.fs4, rncStyles.textPrimary, rncStyles.textBold, rncStyles.ml1, rncStyles.mr1]}>{quantity}</Text>
+          <TouchableOpacity onPress={incrementQuantity} style={[rncStyles.btnPrimary, rncStyles.rounded, styles.quantityButton]}>
+            <Text style={styles.quantityButtonText}>+</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity
-          style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p2]}
-          onPress={() => console.log('Add to Cart pressed')}>
-          <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>
-            Add to Cart
-          </Text>
-        </TouchableOpacity>
-       
+  style={[rncStyles.btnPrimary, rncStyles.rounded, rncStyles.p2]}
+  onPress={addToCart}>
+  <Text style={[rncStyles.textWhite, rncStyles.textCenter]}>
+    Add to Cart
+  </Text>
+</TouchableOpacity>
 
-   
         <View style={rncStyles.mb2}>
           <Text
             style={[rncStyles.mt4, rncStyles.fs5, rncStyles.textPrimary, rncStyles.textBold]}>
@@ -157,6 +177,19 @@ const ProductDetail = ({ route, navigation }) => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  quantityButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 5,
+  },
+  quantityButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+});
 
 export default ProductDetail;

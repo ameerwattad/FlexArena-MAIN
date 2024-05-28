@@ -129,8 +129,8 @@ const ProductData = [
       },
       {
         id: 18,
-        name: 'Ankle Strap for Cable Machine, Padded Ankle Straps for Cable Machine Kickbacks, Glute Workouts, Leg Extensions, Curls, Booty Hip Abductors Exercise, Adjustable Comfort Ankle Cuff for Gym',
-        description: 'Ankle Strap',
+        name: 'Ankle Strap',
+        description: 'Ankle Strap for Cable Machine, Padded Ankle Straps for Cable Machine Kickbacks, Glute Workouts, Leg Extensions, Curls, Booty Hip Abductors Exercise, Adjustable Comfort Ankle Cuff for Gym',
         image: require('../../assets/images/AllData/accessories/3.webp'),
         rating: 3,
         price:5000,

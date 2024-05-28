@@ -23,3 +23,8 @@ https://medusajs.com/blog/react-native-ecommerce-app-part-2/
 
 Payment:
 https://www.youtube.com/watch?v=50bIefoMo3c
+
+
+
+Instructions:
+npm uninstall expo-image-manipulator  //to optimize the size of the image and make it load quicker

@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   profileAvatar: {
     width: 100,
     height: 100,
-    borderRadius: 9999,
+    borderRadius: 50,
   },
   input: {
     width: '100%',
@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginBottom: 10,
+    textAlign: 'center',
   },
   saveButton: {
     backgroundColor: '#007bff',
@@ -194,6 +195,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     marginBottom: 10,
+    width: '100%',
+    alignItems: 'center',
   },
   saveButtonText: {
     color: '#fff',

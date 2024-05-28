@@ -4,14 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import Slideshow from 'react-native-image-slider-show';
 import { Rating } from 'react-native-ratings';
-import ProductData from './Data/ProductData'; // Import ProductData
-import SearchAutocomplete from './Data/SearchAutoComplete'; 
+import ProductData from './Data/ProductData';
+import AboutUs from './AboutUs';
+import SocialMediaContainer from './SocialMediaContainer';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
+  
 
   const handleSearchSubmit = () => {
     if (searchQuery) {
@@ -112,20 +114,30 @@ export default function Home() {
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.categoryItemsContainer}>
               {[
-                { name: 'Gym', image: require('../assets/images/Categories/gym.png') },
-                { name: 'Protein Powder', image: require('../assets/images/Categories/protein-powder.png') },
-                { name: 'T-shirt', image: require('../assets/images/Categories/tshirt.png') },
-                { name: 'Smartwatch', image: require('../assets/images/Categories/smartwatch.png') },
-                { name: 'Towels', image: require('../assets/images/Categories/towels.png') },
+                { name: 'Machines', image: require('../assets/images/Categories/gym.png') },
+                { name: 'Supplements', image: require('../assets/images/Categories/protein-powder.png') },
+                { name: 'T-shirts', image: require('../assets/images/Categories/tshirt.png') },
+                { name: 'Smartwatches', image: require('../assets/images/Categories/smartwatch.png') },
+                { name: 'Accessories', image: require('../assets/images/Categories/towels.png') },
               ].map((category, index) => (
-                <View key={index} style={styles.categoryItem}>
+                <TouchableOpacity 
+                key={index} 
+                style={styles.categoryItem} 
+                onPress={() => {
+                  const categoryProducts = ProductData.filter(product => product.category === category.name);
+                  navigation.navigate('SearchResults', { searchQuery: '', category: category.name, products: categoryProducts });
+                }}
+              >
+              
                   <Image source={category.image} style={styles.carouselImage} />
                   <Text style={styles.categoryText}>{category.name}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </ScrollView>
         </View>
+        <AboutUs/>
+        <SocialMediaContainer/>
       </View>
     </ScrollView>
   );
@@ -238,6 +250,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
+
   membershipContainer: {
     width: screenWidth,
     alignSelf: 'center',

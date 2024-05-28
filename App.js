@@ -19,6 +19,7 @@ import ProfileEdit from './screens/ProfileEdit';
 import ProductDetail from './screens/Data/ProductDetail';
 import ProductData from './screens/Data/ProductData';
 import SearchResults from './screens/Data/SearchResults';
+import Checkout from './screens/Checkout';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +44,7 @@ export default function App() {
       <Stack.Screen name="ProfileEdit" component={ProfileEdit}/>
       <Stack.Screen name="ProductDetail" component={ProductDetail}/>
       <Stack.Screen name="SearchResults" component={SearchResults}/>
+      <Stack.Screen name="Checkout" component={Checkout}/>
    
 
     </Stack.Navigator>

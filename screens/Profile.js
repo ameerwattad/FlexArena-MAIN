@@ -5,6 +5,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, uploadString, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
 import DarkModeContext from './settings/DarkMode';
 import BugReport from './BugReport';
 import ContactUsScreen from './ContactUsScreen';
@@ -35,7 +36,8 @@ export default function Profile({ navigation }) {
 
   const uploadProfileImage = async (imageUri, userId) => {
     try {
-      const response = await fetch(imageUri);
+      const compressedUri = await compressImage(imageUri); // Compress image
+      const response = await fetch(compressedUri);
       const blob = await response.blob();
       const imageURLRef = ref(storage, `profileImages/${userId}`);
       await uploadBlob(imageURLRef, blob);
@@ -70,7 +72,20 @@ export default function Profile({ navigation }) {
       return null;
     }
   };
-  
+
+  const compressImage = async (uri) => {
+    try {
+      const compressedImage = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1000 } }], // Adjust the width as needed
+        { compress: 0.5, format: 'jpeg' } // Adjust the compression quality as needed
+      );
+      return compressedImage.uri;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      return uri; // Return original URI if compression fails
+    }
+  };
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();

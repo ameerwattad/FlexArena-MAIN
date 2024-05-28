@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Image, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
+import SocialMediaContainer from './SocialMediaContainer';
 
 const Membership = () => {
   return (
@@ -120,6 +121,7 @@ const Membership = () => {
           Enjoy Our 30-Day Risk-Free Guarantee. We're confident you'll embrace your FlexZone journey. If within the first 30 days you're not experiencing a more vibrant, happier, healthier lifestyle, we'll refund your investment without hesitation.
           </Text>
         </View>
+        <SocialMediaContainer/>
 
       </View>
     </ScrollView>

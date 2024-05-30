@@ -1,25 +1,9 @@
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { getStorage} from 'firebase/storage';
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDrSb4tLwIq0Oh_7bsKst95Po3n20-i10Q",
-  authDomain: "gym-market.firebaseapp.com",
-  projectId: "gym-market",
-  storageBucket: "gym-market.appspot.com",
-  messagingSenderId: "229168445264",
-  appId: "1:229168445264:web:ed0c5ddc2aeaa463d29e55",
-  measurementId: "G-WHN1M0P7KC"
-};
-
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const storage = getStorage(app);
+import { auth, database } from './firebase'; // Import initialized Firebase services
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { ref, set, get } from 'firebase/database';
 
 
 const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication }) => {
@@ -84,9 +68,24 @@ export default function Login() {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
         console.log('User signed in successfully!');
-        navigation.navigate('Bottomafterlogin');
+        const currentUser = auth.currentUser;
+        const userId = currentUser ? currentUser.uid : null;
+        if (userId) {
+          const adminRef = ref(database, `admins/${userId}`);
+          const snapshot = await get(adminRef);
+          if (snapshot.exists()) {
+            console.log('Admin signed in');
+            navigation.navigate('AdminDashboard');
+          } else {
+            console.log('Regular user signed in');
+            navigation.navigate('Bottomafterlogin');
+          }
+        }
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
+        await set(ref(database, 'users/' + auth.currentUser.uid), {
+          email: auth.currentUser.email
+        });
         console.log('User created successfully!');
         navigation.navigate('Bottomafterlogin');
       }
@@ -94,6 +93,11 @@ export default function Login() {
       console.error('Authentication error:', error.message);
     }
   };
+  
+  
+  
+  
+  
 
   const handleGoogleSignIn = () => {
    

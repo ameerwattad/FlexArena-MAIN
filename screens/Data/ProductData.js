@@ -1,4 +1,4 @@
-const ProductData = [
+let ProductData = [
     {
       id: 1,
       name: 'Multi-trainer with robotic arm',
@@ -6,6 +6,8 @@ const ProductData = [
       image: require('../../assets/images/AllData/gym machines/1.jpg'),
       rating: 4,
       price:5000,
+      category:'Machines',
+      discount:0,
     },
     {
       id: 2,
@@ -14,6 +16,8 @@ const ProductData = [
       image: require('../../assets/images/AllData/gym machines/2.jpg'),
       rating: 5,
       price:5000,
+      category:'Machines',
+      discount:0,
     },
     {
       id: 3,
@@ -22,6 +26,8 @@ const ProductData = [
       image: require('../../assets/images/AllData/gym machines/3.jpg'),
       rating: 3,
       price:5000,
+      category:'Machines',
+      discount:0,
     },
     {
         id:4 ,
@@ -30,6 +36,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/gym machines/4.jpg'),
         rating: 3,
         price:5000,
+        category:'Machines',
+        discount:0,
       },
       {
         id: 5,
@@ -38,6 +46,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/gym machines/5.jpg'),
         rating: 3,
         price:5000,
+        category:'Machines',
+        discount:0,
       },
       {
         id: 6,
@@ -46,6 +56,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/smartwatches/1.jpg'),
         rating: 3,
         price:5000,
+        category:'Smartwatches',
+        discount:0,
       },
       {
         id: 7,
@@ -54,6 +66,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/smartwatches/2.jpg'),
         rating: 3,
         price:5000,
+        category:'Smartwatches',
+        discount:25,
       },
       {
         id: 8,
@@ -62,6 +76,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/smartwatches/3.jpg'),
         rating: 3,
         price:5000,
+        category:'Smartwatches',
+        discount:0,
       },
       {
         id: 10,
@@ -70,6 +86,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/smartwatches/4.jpg'),
         rating: 3,
         price:5000,
+        category:'Smartwatches',
+        discount:0,
       },
       {
         id: 11,
@@ -78,6 +96,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/smartwatches/5.jpg'),
         rating: 3,
         price:40,
+        category:'Smartwatches',
+        discount:0,
       },
       {
         id: 12,
@@ -86,6 +106,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/supplements/1.png'),
         rating: 3,
         price:5000,
+        category:'Supplements',
+        discount:0,
       },
       {
         id: 13,
@@ -94,6 +116,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/supplements/2.png'),
         rating: 3,
         price:5000,
+        category:'Supplements',
+        discount:0,
       },
       {
         id: 14,
@@ -102,6 +126,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/supplements/3.png'),
         rating: 3,
         price:45,
+        category:'Supplements',
+        discount:30,
       },
       {
         id: 15,
@@ -110,6 +136,18 @@ const ProductData = [
         image: require('../../assets/images/AllData/supplements/4.png'),
         rating: 3,
         price:5000,
+        category:'Supplements',
+        discount:0,
+      },
+      {
+        id: 21,
+        name: 'Omega 3 Supplement',
+        description: 'Omega 3 supplements provide essential fatty acids that are important for brain health, heart health, and overall well-being.',
+        image: require('../../assets/images/AllData/supplements/5.png'), // Assuming the image is named "5.png"
+        rating: 4,
+        price: 150, 
+        category: 'Supplements',
+        discount: 25, 
       },
       {
         id: 16,
@@ -118,6 +156,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/accessories/1.webp'),
         rating: 3,
         price:5000,
+        category:'Accessories',
+        discount:0,
       },
       {
         id: 17,
@@ -126,6 +166,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/accessories/2.webp'),
         rating: 3,
         price:5000,
+        category:'Accessories',
+        discount:0,
       },
       {
         id: 18,
@@ -134,6 +176,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/accessories/3.webp'),
         rating: 3,
         price:5000,
+        category:'Accessories',
+        discount:0,
       },
       {
         id: 19,
@@ -142,6 +186,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/accessories/4.webp'),
         rating: 3,
         price:5000,
+        category:'Accessories',
+        discount:0,
       },
       {
         id: 20,
@@ -150,6 +196,8 @@ const ProductData = [
         image: require('../../assets/images/AllData/accessories/5.webp'),
         rating: 3,
         price:5000,
+        category:'Accessories',
+        discount:0,
       },                                     
   ];
   

@@ -121,14 +121,18 @@ export default function Home() {
                 { name: 'Accessories', image: require('../assets/images/Categories/towels.png') },
               ].map((category, index) => (
                 <TouchableOpacity 
-                key={index} 
-                style={styles.categoryItem} 
-                onPress={() => {
-                  const categoryProducts = ProductData.filter(product => product.category === category.name);
+                    key={index} 
+                       style={styles.categoryItem} 
+                       onPress={() => {
+                        // Filter products based on the selected category
+                       const categoryProducts = ProductData.filter(product => product.category === category.name);
+                    
+                   // Navigate to the SearchResults screen with the filtered products and category name
                   navigation.navigate('SearchResults', { searchQuery: '', category: category.name, products: categoryProducts });
-                }}
-              >
-              
+                 }}
+  
+                  >
+
                   <Image source={category.image} style={styles.carouselImage} />
                   <Text style={styles.categoryText}>{category.name}</Text>
                 </TouchableOpacity>

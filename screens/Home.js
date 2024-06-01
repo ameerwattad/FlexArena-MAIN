@@ -1,33 +1,47 @@
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import Slideshow from 'react-native-image-slider-show';
 import { Rating } from 'react-native-ratings';
-import ProductData from './Data/ProductData';
+import { getDatabase, ref, onValue } from 'firebase/database';
+import { database } from './firebase'; // Import the Firebase database instance
 import AboutUs from './AboutUs';
 import SocialMediaContainer from './SocialMediaContainer';
+import FastImage from 'react-native-fast-image';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [specialPicks, setSpecialPicks] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
 
-  const handleSearchSubmit = () => {
-    if (searchQuery) {
-      navigation.navigate('SearchResults', { searchQuery });
-    }
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const productsRef = ref(database, 'products');
+      onValue(productsRef, (snapshot) => {
+        const productsData = snapshot.val();
+        if (productsData) {
+          const productsArray = Object.keys(productsData).map(key => ({
+            id: key,
+            ...productsData[key],
+          }));
+          setAllProducts(productsArray);
+          // Pick 6 random products
+          const shuffled = productsArray.sort(() => 0.5 - Math.random());
+          setSpecialPicks(shuffled.slice(0, 6));
+        }
+      });
+    };
 
-  const handleNavigation = (productId) => {
-    const product = ProductData.find(item => item.id === productId);
-    if (product) {
-      navigation.navigate('ProductDetail', { product });
-    } else {
-      console.error(`Product with ID ${productId} not found`);
-    }
+    fetchProducts();
+  }, []);
+
+  const handleCategoryPress = (category) => {
+    const categoryProducts = allProducts.filter(product => product.category === category);
+    navigation.navigate('SearchResults', { searchQuery: '', category: category, products: categoryProducts });
   };
 
   const truncateDescription = (description) => {
@@ -37,14 +51,18 @@ export default function Home() {
     return description;
   };
 
+  const truncateName = (name) => {
+    if (name.length > 20) { // Adjust the length as needed
+      return `${name.substring(0, 20)}...`;
+    }
+    return name;
+  };
+
   const images = [
     { url: require('./../assets/images/SALES/smartwatch.png') },
     { url: require('./../assets/images/SALES/1.png') },
     { url: require('./../assets/images/SALES/30.png') },
   ];
-
-  const specialPicksIds = [11, 12, 13, 14, 15];
-  const specialPicks = ProductData.filter(product => specialPicksIds.includes(product.id));
 
   return (
     <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
@@ -56,7 +74,7 @@ export default function Home() {
               style={styles.searchbar}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearchSubmit}
+              onSubmitEditing={() => navigation.navigate('SearchResults', { searchQuery })}
             />
             <TouchableOpacity onPress={() => console.log("Button pressed")} style={styles.iconContainer}>
               <Image source={require('../assets/images/reorder-horizontal.png')} style={styles.iconImage} />
@@ -75,11 +93,11 @@ export default function Home() {
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.topCategoriesContainer}>
               {specialPicks.map((product, index) => (
-                <TouchableOpacity key={index} style={styles.topCategoryItem} onPress={() => handleNavigation(product.id)}>
-                  <Image source={product.image} style={styles.topCarouselImage} />
-                  <Text style={styles.categoryText}>{product.name}</Text>
+                <TouchableOpacity key={index} style={styles.topCategoryItem} onPress={() => navigation.navigate('ProductDetail', { product })}>
+                  <Image source={{ uri: product.image }} style={styles.topCarouselImage} />
+                  <Text style={styles.categoryText}>{truncateName(product.name)}</Text>
                   <Text style={styles.categoryDescription}>{truncateDescription(product.description)}</Text>
-                  <Text style={[styles.productPrice]}>{`Price: $${product.price.toFixed(2)}`}</Text>
+                  <Text style={[styles.productPrice]}>{`Price: $${parseFloat(product.price).toFixed(2)}`}</Text>
                   <Rating
                     type='star'
                     ratingCount={5}
@@ -96,7 +114,10 @@ export default function Home() {
 
         <View style={[styles.slideableContainer, { height: 200 }]}>
           <Slideshow
-            dataSource={images}
+            dataSource={images.map((image, index) => ({
+              ...image,
+              onPress: () => navigation.navigate('ProductDetail', { product }),
+            }))}
             height={200}
             arrowSize={20}
             indicatorSize={20}
@@ -116,23 +137,15 @@ export default function Home() {
               {[
                 { name: 'Machines', image: require('../assets/images/Categories/gym.png') },
                 { name: 'Supplements', image: require('../assets/images/Categories/protein-powder.png') },
-                { name: 'T-shirts', image: require('../assets/images/Categories/tshirt.png') },
+                { name: 'Shirts', image: require('../assets/images/Categories/tshirt.png') },
                 { name: 'Smartwatches', image: require('../assets/images/Categories/smartwatch.png') },
                 { name: 'Accessories', image: require('../assets/images/Categories/towels.png') },
               ].map((category, index) => (
                 <TouchableOpacity 
-                    key={index} 
-                       style={styles.categoryItem} 
-                       onPress={() => {
-                        // Filter products based on the selected category
-                       const categoryProducts = ProductData.filter(product => product.category === category.name);
-                    
-                   // Navigate to the SearchResults screen with the filtered products and category name
-                  navigation.navigate('SearchResults', { searchQuery: '', category: category.name, products: categoryProducts });
-                 }}
-  
-                  >
-
+                  key={index} 
+                  style={styles.categoryItem} 
+                  onPress={() => handleCategoryPress(category.name)}
+                >
                   <Image source={category.image} style={styles.carouselImage} />
                   <Text style={styles.categoryText}>{category.name}</Text>
                 </TouchableOpacity>
@@ -185,7 +198,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 20,
     paddingHorizontal: 10,
-    height: 310,
+    height: 347,
   },
   specialPicksText: {
     fontSize: 20,
@@ -254,7 +267,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-
   membershipContainer: {
     width: screenWidth,
     alignSelf: 'center',
@@ -269,3 +281,4 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 });
+

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -6,84 +6,99 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Image,
   StyleSheet,
   Alert,
 } from 'react-native';
-import DarkModeContext from './settings/DarkMode'; // Adjust the path as necessary
-import { getAuth, reauthenticateWithCredential, updatePassword, updateEmail, updateProfile, EmailAuthProvider } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DarkModeContext from './settings/DarkMode';
+import { getAuth, reauthenticateWithCredential, updatePassword, EmailAuthProvider, updateProfile } from 'firebase/auth';
+import { getDatabase, ref, set } from 'firebase/database';
 
 export default function ProfileEdit({ navigation }) {
   const { isDarkMode } = useContext(DarkModeContext);
   const auth = getAuth();
+  const [user, setUser] = useState(auth.currentUser);
 
-  // Check if user is signed in
-  const user = auth.currentUser;
-  if (!user) {
-    // Handle scenario where user is not signed in
-    // Redirect to login screen or handle as appropriate
-    return null; // Or display a message to prompt the user to sign in
-  }
-
-  const [name, setName] = useState(user.displayName || '');
-  const [email, setEmail] = useState(user.email || '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [error, setError] = useState(null);
 
-  const handleChangePassword = async () => {
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      if (user) {
+        loadData(user.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.displayName || '');
+      setEmail(user.email || '');
+    }
+  }, [user]);
+
+  const loadData = async (uid) => {
     try {
-      // Create credential using EmailAuthProvider
-      const credential = EmailAuthProvider.credential(email, currentPassword);
-
-      // Reauthenticate user with current password
-      await reauthenticateWithCredential(user, credential);
-
-      // Change password
-      await updatePassword(user, newPassword);
-
-      // Prompt the user that the password has been successfully changed
-      Alert.alert(
-        'Password Changed',
-        'Your password has been successfully changed.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
+      const savedData = await AsyncStorage.getItem(`userData_${uid}`);
+      if (savedData) {
+        const userData = JSON.parse(savedData);
+        setName(userData.name || '');
+        setEmail(userData.email || '');
+        setPhoneNumber(userData.phoneNumber || '');
+        setAddress(userData.address || '');
+      }
     } catch (error) {
-      setError(error.message);
+      console.error('Error loading user data:', error);
     }
   };
 
-  const handleChangeEmail = async () => {
+  const saveDataToStorage = async () => {
     try {
-      // Reauthenticate user with current password
-      const credential = EmailAuthProvider.credential(email, currentPassword);
-      await reauthenticateWithCredential(user, credential);
-
-      // Update email
-      await updateEmail(user, email);
-
-      // Prompt the user that the email has been successfully updated
-      Alert.alert(
-        'Email Updated',
-        'Your email has been successfully updated.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
+      if (!user) return;
+      const userData = {
+        name,
+        email,
+        phoneNumber,
+        address,
+      };
+      await AsyncStorage.setItem(`userData_${user.uid}`, JSON.stringify(userData));
     } catch (error) {
-      setError(error.message);
+      console.error('Error saving user data:', error);
     }
   };
 
-  const handleSaveProfile = async () => {
+  const handleSaveChanges = async () => {
     try {
-      // Update display name
+      const credential = EmailAuthProvider.credential(email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      const db = getDatabase();
+      const userRef = ref(db, `users/${user.uid}`);
+
+      await set(userRef, {
+        username: name,
+        email,
+        phoneNumber,
+        address,
+      });
+
       await updateProfile(user, { displayName: name });
 
-      // Prompt the user that the profile has been successfully updated
-      Alert.alert(
-        'Profile Updated',
-        'Your profile has been successfully updated.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
+      if (newPassword) {
+        await updatePassword(user, newPassword);
+      }
+
+      saveDataToStorage();
+
+      Alert.alert('Profile Updated', 'Your profile has been successfully updated.', [{ text: 'OK', onPress: () => navigation.goBack() }]);
     } catch (error) {
       setError(error.message);
     }
@@ -91,60 +106,58 @@ export default function ProfileEdit({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profile}>
-          <View style={styles.profileAvatarWrapper}>
-            <Image
-              alt=""
-              source={require('../assets/images/Profile.png')}
-              style={styles.profileAvatar}
-            />
-          </View>
-
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDarkMode && styles.darkInput]}
             placeholder="Name"
             value={name}
             onChangeText={setName}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDarkMode && styles.darkInput]}
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDarkMode && styles.darkInput]}
             placeholder="Current Password"
             secureTextEntry={true}
             value={currentPassword}
             onChangeText={setCurrentPassword}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
           />
           <TextInput
-            style={styles.input}
-            placeholder="New Password"
+            style={[styles.input, isDarkMode && styles.darkInput]}
+            placeholder="New Password (leave blank to keep current password)"
             secureTextEntry={true}
             value={newPassword}
             onChangeText={setNewPassword}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
+          />
+          <TextInput
+            style={[styles.input, isDarkMode && styles.darkInput]}
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
+          />
+          <TextInput
+            style={[styles.input, isDarkMode && styles.darkInput]}
+            placeholder="Address"
+            value={address}
+            onChangeText={setAddress}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
           />
 
           {error && <Text style={styles.errorText}>{error}</Text>}
 
-          <TouchableOpacity onPress={handleChangePassword}>
+          <TouchableOpacity onPress={handleSaveChanges}>
             <View style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Change Password</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleChangeEmail}>
-            <View style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Change Email</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleSaveProfile}>
-            <View style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save Profile</Text>
+              <Text style={styles.saveButtonText}>Save Changes</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -156,24 +169,16 @@ export default function ProfileEdit({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   darkContainer: {
-    backgroundColor: '#333',
+    backgroundColor: '#121212',
+  },
+  scrollContainer: {
+    padding: 24,
   },
   profile: {
-    padding: 24,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  profileAvatarWrapper: {
-    marginBottom: 24,
-  },
-  profileAvatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
   },
   input: {
     width: '100%',
@@ -183,6 +188,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 16,
+  },
+  darkInput: {
+    borderColor: '#555',
+    color: '#fff',
   },
   errorText: {
     color: 'red',

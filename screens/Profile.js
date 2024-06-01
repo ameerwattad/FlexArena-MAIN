@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Switch, Image, StyleSheet, Alert } from 'react-native';
-import { auth, storage } from './firebase';  // Import Firebase services
+import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Switch, Image, StyleSheet, Alert, Modal } from 'react-native';
+import { auth, storage, database } from './firebase';  // Import Firebase services
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { ref, uploadString, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref as databaseRef, get } from 'firebase/database';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
@@ -14,8 +15,10 @@ import ProfileEdit from './ProfileEdit';
 export default function Profile({ navigation }) {
   const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
   const [user, setUser] = useState(null);
+  const [username, setUsername] = useState('');
   const [image, setImage] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [form, setForm] = useState({
     darkMode: false,
     emailNotifications: true,
@@ -28,25 +31,42 @@ export default function Profile({ navigation }) {
       if (user) {
         const imageURL = await fetchProfileImage(user.uid);
         setImage(imageURL);
+        const fetchedUsername = await fetchUsername(user.uid);
+        setUsername(fetchedUsername);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
+  const fetchUsername = async (userId) => {
+    try {
+      const userRef = databaseRef(database, `users/${userId}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        return userData.username;
+      }
+      return 'Guest';
+    } catch (error) {
+      console.error('Error fetching username:', error);
+      return 'Guest';
+    }
+  };
+
   const uploadProfileImage = async (imageUri, userId) => {
     try {
       const compressedUri = await compressImage(imageUri); // Compress image
       const response = await fetch(compressedUri);
       const blob = await response.blob();
-      const imageURLRef = ref(storage, `profileImages/${userId}`);
+      const imageURLRef = storageRef(storage, `profileImages/${userId}`);
       await uploadBlob(imageURLRef, blob);
       console.log('Image uploaded successfully!');
     } catch (error) {
       console.error('Error uploading image:', error);
     }
   };
-  
+
   const uploadBlob = async (ref, blob) => {
     return new Promise((resolve, reject) => {
       const task = uploadBytesResumable(ref, blob);
@@ -61,10 +81,10 @@ export default function Profile({ navigation }) {
       );
     });
   };
-  
+
   const fetchProfileImage = async (userId) => {
     try {
-      const imageURLRef = ref(storage, `profileImages/${userId}`);
+      const imageURLRef = storageRef(storage, `profileImages/${userId}`);
       const url = await getDownloadURL(imageURLRef);
       return url;
     } catch (error) {
@@ -109,8 +129,6 @@ export default function Profile({ navigation }) {
       }
     }
   };
-
-
 
   const takePicture = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -167,11 +185,10 @@ export default function Profile({ navigation }) {
     }
   };
 
-
   return (
     <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
       <View style={styles.profile}>
-        <TouchableOpacity onPress={showImagePickerOptions}>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
           <View style={styles.profileAvatarWrapper}>
             <Image
               alt=""
@@ -187,7 +204,7 @@ export default function Profile({ navigation }) {
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.profileName}>{user ? user.email : 'Guest'}</Text>
+          <Text style={styles.profileName}>{username}</Text>
           <Text style={styles.profileAddress}>
             Tel Aviv
           </Text>
@@ -255,9 +272,6 @@ export default function Profile({ navigation }) {
               value={form.pushNotifications}
             />
           </View>
-
-          
-
         </View>
 
         <View style={styles.section}>
@@ -277,14 +291,13 @@ export default function Profile({ navigation }) {
           <Text style={styles.sectionTitle}>Feedback</Text>
 
           <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ContactUsScreen')}>
-          <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
-          <FeatherIcon color="#fff" name="message-circle" size={20} />
-          </View>
-          <Text style={styles.rowLabel}>Contact Us</Text>
-          <View style={styles.rowSpacer} />
-          <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
+              <FeatherIcon color="#fff" name="message-circle" size={20} />
+            </View>
+            <Text style={styles.rowLabel}>Contact Us</Text>
+            <View style={styles.rowSpacer} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
-
         </View>
 
         {user && (
@@ -297,6 +310,17 @@ export default function Profile({ navigation }) {
           </View>
         )}
       </ScrollView>
+
+      <Modal visible={modalVisible} transparent={true}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.modalBackground} onPress={() => setModalVisible(false)}>
+            <Image
+              source={image ? { uri: image } : require('../assets/images/Profile.png')}
+              style={styles.modalImage}
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -407,5 +431,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: '90%',
+    height: '90%',
+    resizeMode: 'contain',
   },
 });

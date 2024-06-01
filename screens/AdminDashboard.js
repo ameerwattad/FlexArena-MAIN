@@ -1,8 +1,107 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Button, Modal, TextInput, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import ProductsList from '../admin/ProdcutsList'; // Adjust the import path based on your project structure
 import { ref, onValue, push, remove } from 'firebase/database';
 import { database } from './firebase'; // Adjust the import path based on your project structure
+
+// Define screen components
+const ProductsScreen = ({ products, onProductPress, onRemoveProduct }) => (
+  <ScrollView contentContainerStyle={styles.content}>
+    <ProductsList products={products} onProductPress={onProductPress} onRemoveProduct={onRemoveProduct} />
+  </ScrollView>
+);
+
+const AddProductScreen = ({ newProduct, setNewProduct, handleAddProduct, ratingInputRef }) => (
+  <ScrollView contentContainerStyle={styles.content}>
+    <View style={styles.inputContainer}>
+      <TextInput
+        style={styles.input}
+        placeholder="Name"
+        value={newProduct.name}
+        onChangeText={(text) => setNewProduct({ ...newProduct, name: text })}
+      />
+      <TextInput
+        style={[styles.input, styles.descriptionInput]}
+        placeholder="Description"
+        value={newProduct.description}
+        onChangeText={(text) => setNewProduct({ ...newProduct, description: text })}
+        multiline={true}
+        numberOfLines={10}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Category"
+        value={newProduct.category}
+        onChangeText={(text) => setNewProduct({ ...newProduct, category: text })}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Price"
+        value={newProduct.price}
+        onChangeText={(text) => setNewProduct({ ...newProduct, price: text })}
+        keyboardType="numeric"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Discount"
+        value={newProduct.discount}
+        onChangeText={(text) => setNewProduct({ ...newProduct, discount: text })}
+        keyboardType="numeric"
+      />
+      <TextInput
+        ref={ratingInputRef}
+        style={styles.input}
+        placeholder="Rating"
+        value={newProduct.rating.toString()}
+        onChangeText={(text) => setNewProduct({ ...newProduct, rating: parseFloat(text) || 0 })}
+        keyboardType="numeric"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Image URL"
+        value={newProduct.image}
+        onChangeText={(text) => setNewProduct({ ...newProduct, image: text })}
+      />
+      <TouchableOpacity style={styles.saveButton} onPress={handleAddProduct}>
+        <Text style={styles.buttonText}>Save</Text>
+      </TouchableOpacity>
+    </View>
+  </ScrollView>
+);
+
+const BugReportsScreen = ({ bugReports }) => (
+  <ScrollView contentContainerStyle={styles.content}>
+    <View style={styles.bugReportsContainer}>
+      <Text style={styles.bugReportsTitle}>Bug Reports</Text>
+      {bugReports.map((bugReport, index) => (
+        <View key={index} style={styles.bugReportItem}>
+          <Text style={styles.bugReportText}>{`Bug Description: ${bugReport.bugDescription}`}</Text>
+          <Text style={styles.bugReportText}>{`Steps to Reproduce: ${bugReport.stepsToReproduce}`}</Text>
+        </View>
+      ))}
+    </View>
+  </ScrollView>
+);
+
+const ContactFormsScreen = ({ contactForms }) => (
+  <ScrollView contentContainerStyle={styles.content}>
+    <View style={styles.contactFormsContainer}>
+      <Text style={styles.contactFormsTitle}>Contact Forms</Text>
+      {contactForms.map((form, index) => (
+        <View key={index} style={styles.contactFormItem}>
+          <Text style={styles.contactFormText}>{`Name: ${form.name}`}</Text>
+          <Text style={styles.contactFormText}>{`Email: ${form.email}`}</Text>
+          <Text style={styles.contactFormText}>{`Message: ${form.message}`}</Text>
+        </View>
+      ))}
+    </View>
+  </ScrollView>
+);
+
+// Define the Tab Navigator
+const Tab = createBottomTabNavigator();
 
 const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
@@ -14,10 +113,11 @@ const AdminDashboard = () => {
     price: '',
     discount: '',
     image: '',
-    rating: 0, // Add rating field with initial value 0
+    rating: 0,
   });
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const ratingInputRef = useRef(null); // Reference for the rating input field
+  const [bugReports, setBugReports] = useState([]);
+  const [contactForms, setContactForms] = useState([]);
+  const ratingInputRef = useRef(null);
 
   useEffect(() => {
     const productsRef = ref(database, 'products');
@@ -29,37 +129,43 @@ const AdminDashboard = () => {
       })) : [];
       setProducts(productList);
     });
+
+    const bugReportsRef = ref(database, 'bugReports');
+    onValue(bugReportsRef, (snapshot) => {
+      const data = snapshot.val();
+      const reportsList = data ? Object.keys(data).map((key) => ({
+        id: key,
+        ...data[key],
+      })) : [];
+      setBugReports(reportsList);
+    });
+
+    const contactFormsRef = ref(database, 'contactForms');
+    onValue(contactFormsRef, (snapshot) => {
+      const data = snapshot.val();
+      const formsList = data ? Object.keys(data).map((key) => ({
+        id: key,
+        ...data[key],
+      })) : [];
+      setContactForms(formsList);
+    });
   }, []);
 
-  // Function to handle product press
-  const handleProductPress = (product) => {
-    setSelectedProduct(product);
-  };
-
-  // Function to close modal
-  const closeModal = () => {
-    setSelectedProduct(null);
-  };
-
-  // Function to handle adding a new product
   const handleAddProduct = async () => {
     try {
-      // Check if all required fields are filled
       if (!newProduct.name || !newProduct.description || !newProduct.category || !newProduct.price) {
         throw new Error('All fields are required for the product');
       }
 
       const productsRef = ref(database, 'products');
       await push(productsRef, newProduct);
-      setNewProduct({ name: '', description: '', category: '', price: '', discount: '', image: '', rating: 0 }); // Reset the rating
-      setShowAddProduct(false); // Close the add product section after adding
-      dismissKeyboard(); // Dismiss the keyboard
+      setNewProduct({ name: '', description: '', category: '', price: '', discount: '', image: '', rating: 0 });
+      dismissKeyboard();
     } catch (error) {
       console.error('Error adding product:', error);
     }
   };
 
-  // Function to handle removing a product
   const handleRemoveProduct = async (productId) => {
     try {
       const productRef = ref(database, `products/${productId}`);
@@ -69,136 +175,147 @@ const AdminDashboard = () => {
     }
   };
 
-  // Function to dismiss the keyboard
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Admin Dashboard</Text>
-      <TouchableOpacity onPress={() => setShowAddProduct(!showAddProduct)} style={styles.addButton}>
-        <Text style={styles.buttonText}>Add a Product</Text>
-      </TouchableOpacity>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
 
-      {showAddProduct && (
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={newProduct.name}
-            onChangeText={(text) => setNewProduct({ ...newProduct, name: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Description"
-            value={newProduct.description}
-            onChangeText={(text) => setNewProduct({ ...newProduct, description: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Category"
-            value={newProduct.category}
-            onChangeText={(text) => setNewProduct({ ...newProduct, category: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Price"
-            value={newProduct.price}
-            onChangeText={(text) => setNewProduct({ ...newProduct, price: text })}
-            keyboardType="numeric"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Discount"
-            value={newProduct.discount}
-            onChangeText={(text) => setNewProduct({ ...newProduct, discount: text })}
-            keyboardType="numeric"
-          />
-          <TextInput
-            ref={ratingInputRef}
-            style={styles.input}
-            placeholder="Rating"
-            value={newProduct.rating.toString()} // Convert rating to string for TextInput
-            onChangeText={(text) => setNewProduct({ ...newProduct, rating: parseFloat(text) || 0 })} // Parse input to float, default to 0 if invalid
-            keyboardType="numeric"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Image URL"
-            value={newProduct.image}
-            onChangeText={(text) => setNewProduct({ ...newProduct, image: text })}
-          />
-          <Button title="Save" onPress={handleAddProduct} />
-        </View>
-      )}
+          if (route.name === 'Products') {
+            iconName = focused ? 'cart' : 'cart-outline';
+          } else if (route.name === 'Add Product') {
+            iconName = focused ? 'add' : 'add-outline';
+          } else if (route.name === 'Bug Reports') {
+            iconName = focused ? 'bug' : 'bug-outline';
+          } else if (route.name === 'Contact Forms') {
+            iconName = focused ? 'mail' : 'mail-outline';
+          }
 
-      {/* Render ProductsList component */}
-      <ProductsList products={products} onProductPress={handleProductPress} onRemoveProduct={handleRemoveProduct} />
-
-      {/* Modal to display product details */}
-      <Modal visible={!!selectedProduct} onRequestClose={closeModal}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Product Details</Text>
-          {selectedProduct && (
-            <View>
-              <Text>Name: {selectedProduct.name}</Text>
-              <Text>Description: {selectedProduct.description}</Text>
-              <Text>Category: {selectedProduct.category}</Text>
-              <Text>Price: ${selectedProduct.price}</Text>
-              <Text>Rating: {selectedProduct.rating}</Text>
-              <Button title="Close" onPress={closeModal} />
-            </View>
-          )}
-        </View>
-      </Modal>
-    </View>
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarLabel: ({ focused, color }) => {
+          let label;
+          if (route.name === 'Products') {
+            label = `Products (${products.length})`;
+          } else if (route.name === 'Add Product') {
+            label = 'Add Product';
+          } else if (route.name === 'Bug Reports') {
+            label = `Bug Reports (${bugReports.length})`;
+          } else if (route.name === 'Contact Forms') {
+            label = `Contact Forms (${contactForms.length})`;
+          }
+          return <Text style={{ color, fontSize: 12 }}>{label}</Text>;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: 'tomato',
+        inactiveTintColor: 'gray',
+      }}
+    >
+      <Tab.Screen name="Products">
+        {() => <ProductsScreen products={products} onProductPress={setSelectedProduct} onRemoveProduct={handleRemoveProduct} />}
+      </Tab.Screen>
+      <Tab.Screen name="Add Product">
+        {() => <AddProductScreen newProduct={newProduct} setNewProduct={setNewProduct} handleAddProduct={handleAddProduct} ratingInputRef={ratingInputRef} />}
+      </Tab.Screen>
+      <Tab.Screen name="Bug Reports">
+        {() => <BugReportsScreen bugReports={bugReports} />}
+      </Tab.Screen>
+      <Tab.Screen name="Contact Forms">
+        {() => <ContactFormsScreen contactForms={contactForms} />}
+      </Tab.Screen>
+    </Tab.Navigator>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  content: {
     padding: 16,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
   inputContainer: {
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     marginBottom: 16,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#ced4da',
     borderWidth: 1,
     marginBottom: 8,
     paddingLeft: 8,
+    borderRadius: 4,
   },
-  modalContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+  descriptionInput: {
+    height: 100,
+    textAlignVertical: 'top',
   },
-  modalTitle: {
-    fontSize: 20,
+  saveButton: {
+    backgroundColor: '#28a745',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    marginTop: 16,
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  bugReportsContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  bugReportsTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  addButton: {
-    backgroundColor: 'blue', // Adjust color as needed
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginBottom: 10, // Adjust margin as needed
-    alignSelf: 'center', // Centers the button horizontally
+  bugReportItem: {
+    marginBottom: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ced4da',
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
   },
-  buttonText: {
-    color: 'white', // Adjust color as needed
+  bugReportText: {
     fontSize: 16,
+    color: '#495057',
+  },
+  contactFormsContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  contactFormsTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  contactFormItem: {
+    marginBottom: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ced4da',
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+  },
+  contactFormText: {
+    fontSize: 16,
+    color: '#495057',
   },
 });
 

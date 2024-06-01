@@ -1,18 +1,25 @@
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { auth, database } from './firebase'; // Import initialized Firebase services
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { ref, set, get } from 'firebase/database';
 
-
-const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication }) => {
+const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication, username, setUsername }) => {
   return (
     <>
       <View style={styles.container}>
         <View style={styles.authContainer}>
           <Image source={require('./../assets/images/newlogo.png')} style={styles.logo} />
           <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
+          {!isLogin && (
+            <TextInput
+              style={styles.input}
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Username"
+            />
+          )}
           <TextInput
             style={styles.input}
             value={email}
@@ -40,28 +47,13 @@ const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogi
     </>
   );
 };
-const AuthenticatedScreen = ({ user }) => {
-  return (
-    <View style={styles.authContainer}>
-      <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.emailText}>{user.email}</Text>
-    </View>
-  );
-};
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState(null);
+  const [username, setUsername] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleAuthentication = async () => {
     try {
@@ -84,7 +76,8 @@ export default function Login() {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
         await set(ref(database, 'users/' + auth.currentUser.uid), {
-          email: auth.currentUser.email
+          email: auth.currentUser.email,
+          username: username
         });
         console.log('User created successfully!');
         navigation.navigate('Bottomafterlogin');
@@ -93,31 +86,24 @@ export default function Login() {
       console.error('Authentication error:', error.message);
     }
   };
-  
-  
-  
-  
-  
 
   const handleGoogleSignIn = () => {
-   
+    // Implement Google Sign-In functionality here
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {user ? (
-        <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
-      ) : (
-        <AuthScreen
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          isLogin={isLogin}
-          setIsLogin={setIsLogin}
-          handleAuthentication={handleAuthentication}
-        />
-      )}
+      <AuthScreen
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        isLogin={isLogin}
+        setIsLogin={setIsLogin}
+        handleAuthentication={handleAuthentication}
+        username={username}
+        setUsername={setUsername}
+      />
       <View>
         <Text style={styles.orText}> ────────  OR  ────────</Text>
       </View>
@@ -169,11 +155,6 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     marginTop: 20,
-  },
-  emailText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
   },
   orText: {
     marginTop: 30,

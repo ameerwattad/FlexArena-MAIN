@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   productItem: {
     width: '90%', // Adjust width to take up 90% of the container width
     marginBottom: 20,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#FFFFFF',
     padding: 10,
     borderRadius: 5,
     borderWidth: 1, // Add border width

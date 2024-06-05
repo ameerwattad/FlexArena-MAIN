@@ -2,14 +2,14 @@ import React, { useRef, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 
-export default function Loading({navigation}) {
+export default function Loading({ navigation }) {
   const animation = useRef(null);
-  const [isSplashScreen,setIsSplashScreen]=useState(true);
+  const [isSplashScreen, setIsSplashScreen] = useState(true);
   useEffect(() => {
     animation.current?.play();
-    setTimeout(()=>{
-        navigation.replace('Bottom');
-    },5000);
+    setTimeout(() => {
+      navigation.replace('Bottom');
+    }, 5000);
   }, [navigation]);
 
   return (
@@ -23,9 +23,9 @@ export default function Loading({navigation}) {
           backgroundColor: 'white',
         }}
         source={require('../assets/Animation - 1716280407848.json')}
-        
+
       />
-      
+
     </View>
   );
 }
@@ -37,5 +37,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
-  
+
 });

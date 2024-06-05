@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, Alert, FlatList, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, Alert, FlatList, KeyboardAvoidingView, Share } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, database } from '../firebase'; // Import Firebase auth and database instances
 import { onAuthStateChanged } from 'firebase/auth';
-import { ref, get, child } from 'firebase/database';
+import { ref, get, set, push, remove } from 'firebase/database';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Assuming you have FontAwesome icons installed
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from expo icons library
+
 
 const ProductDetail = ({ route, navigation }) => {
   const { product } = route.params;
@@ -15,6 +18,8 @@ const ProductDetail = ({ route, navigation }) => {
   const [reviews, setReviews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [inWishlist, setInWishlist] = useState(false); // Track if the product is already in the wishlist
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -23,11 +28,18 @@ const ProductDetail = ({ route, navigation }) => {
 
     loadReviews();
     fetchRelatedProducts();
+    loadWishlist();
 
     calculateTotalPrice(1);
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    // Check if the product is in the wishlist
+    const foundInWishlist = wishlist.some((item) => item.id === product.id);
+    setInWishlist(foundInWishlist);
+  }, [wishlist]);
 
   const addToCart = () => {
     if (!isLoggedIn) {
@@ -97,8 +109,8 @@ const ProductDetail = ({ route, navigation }) => {
 
   const fetchRelatedProducts = async () => {
     try {
-      const dbRef = ref(database);
-      const snapshot = await get(child(dbRef, 'products'));
+      const productsRef = ref(database, 'products');
+      const snapshot = await get(productsRef);
       if (snapshot.exists()) {
         const allProducts = snapshot.val();
         const filteredProducts = Object.values(allProducts).filter(
@@ -113,6 +125,67 @@ const ProductDetail = ({ route, navigation }) => {
       console.error('Error fetching related products:', error);
     }
   };
+
+  const loadWishlist = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const wishlistRef = ref(database, `wishlist/${user.uid}`);
+      const snapshot = await get(wishlistRef);
+      if (snapshot.exists()) {
+        const wishlistItems = snapshot.val();
+        const wishlistProducts = Object.values(wishlistItems);
+        setWishlist(wishlistProducts);
+      }
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
+    }
+  };
+
+  const addToWishlist = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        Alert.alert('Error', 'You need to be logged in to add items to the wishlist.');
+        return;
+      }
+
+      const newWishlistItemRef = push(ref(database, `wishlist/${user.uid}`));
+      await set(newWishlistItemRef, product);
+      Alert.alert('Success', 'Product added to wishlist.');
+      setInWishlist(true); // Update inWishlist state variable
+    } catch (error) {
+      console.error('Error adding product to wishlist:', error);
+      Alert.alert('Error', 'Failed to add product to wishlist.');
+    }
+  };
+
+
+
+  const removeFromWishlist = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const wishlistRef = ref(database, `wishlist/${user.uid}`);
+        const snapshot = await get(wishlistRef);
+        if (snapshot.exists()) {
+          const wishlistItems = snapshot.val();
+          const itemToRemove = Object.entries(wishlistItems).find(([key, value]) => value.id === product.id);
+          if (itemToRemove) {
+            const [key, value] = itemToRemove;
+            await remove(ref(database, `wishlist/${user.uid}/${key}`));
+            Alert.alert('Success', 'Product removed from wishlist.');
+            setInWishlist(false); // Update inWishlist state variable
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error removing product from wishlist:', error);
+      Alert.alert('Error', 'Failed to remove product from wishlist.');
+    }
+  };
+
 
   const renderReviewItem = ({ item }) => (
     <View style={styles.reviewItem}>
@@ -144,6 +217,25 @@ const ProductDetail = ({ route, navigation }) => {
     return rows.join('\n');
   };
 
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        message: `Check out this product: ${product.name} - ${product.description}`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log('Shared with activity type:', result.activityType);
+        } else {
+          console.log('Shared');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Dismissed');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error.message);
+    }
+  };
+
   const renderHeader = () => (
     <>
       <View style={styles.imageContainer}>
@@ -154,9 +246,16 @@ const ProductDetail = ({ route, navigation }) => {
         />
       </View>
       <View style={styles.productInfoContainer}>
-        <Text style={styles.productName}>{formatTitle(product.name)}</Text>
+        <Text style={styles.productName}>{formatTitle(product.name)}
+          <TouchableOpacity onPress={handleShare} style={styles.shareIcon}>
+            <Ionicons name="share-social" size={24} color="#007bff" />
+          </TouchableOpacity>
+        </Text>
+
         <Text style={styles.productDescription}>{product.description}</Text>
-        <Text style={styles.productPrice}>{product.discount ? `Discounted Price: $${totalPrice}` : `Price: $${totalPrice}`}</Text>
+        <Text style={styles.productPrice}>
+          {product.discount ? `Discounted Price: $${totalPrice}` : `Price: $${totalPrice}`}
+        </Text>
         <View style={styles.quantityContainer}>
           <TouchableOpacity onPress={decrementQuantity} style={styles.quantityButton}>
             <Text style={styles.quantityButtonText}>-</Text>
@@ -169,6 +268,16 @@ const ProductDetail = ({ route, navigation }) => {
         <TouchableOpacity style={styles.addToCartButton} onPress={addToCart}>
           <Text style={styles.addToCartButtonText}>Add to Cart</Text>
         </TouchableOpacity>
+        {inWishlist ? (
+          <TouchableOpacity style={styles.removeFromWishlistButton} onPress={removeFromWishlist}>
+            <Text style={styles.removeFromWishlistButtonText}>Remove from Wishlist</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.addToWishlistButton} onPress={addToWishlist}>
+            <Text style={styles.addToWishlistButtonText}>Add to Wishlist</Text>
+          </TouchableOpacity>
+        )}
+
       </View>
     </>
   );
@@ -264,10 +373,12 @@ const styles = StyleSheet.create({
     color: '#6c757d', // Secondary text color
   },
   productPrice: {
-    fontSize: 20, // Larger font size for price
+    flexDirection: 'row', // Use flexDirection to align items horizontally
+    alignItems: 'center', // Align items vertically in the center
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#28a745', // Green color for price
+    color: '#28a745',
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -310,6 +421,42 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   addToCartButtonText: {
+    color: '#fff', // White text color
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  addToWishlistButton: {
+    backgroundColor: '#007bff', // Blue color for add to wishlist button
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  addToWishlistButtonText: {
+    color: '#fff', // White text color
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  removeFromWishlistButton: {
+    backgroundColor: '#dc3545', // Red color for remove from wishlist button
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  removeFromWishlistButtonText: {
     color: '#fff', // White text color
     fontSize: 16,
     fontWeight: 'bold',
@@ -417,23 +564,27 @@ const styles = StyleSheet.create({
   relatedProductPrice: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#28a745',
+    textAlign: 'center',
+    color: '#28a745', // Green color for price
   },
   loginPromptContainer: {
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'center',
+    marginTop: 20,
   },
   loginPromptText: {
-    fontSize: 14,
-    marginBottom: 10,
+    fontSize: 16,
     color: '#6c757d',
+    marginBottom: 10,
   },
   loginButtonText: {
-    color: '#007bff',
     fontSize: 16,
+    color: '#007bff', // Blue color for login button
     fontWeight: 'bold',
   },
+  shareIcon: {
+    marginLeft: 20,
+  },
 });
-
 
 export default ProductDetail;

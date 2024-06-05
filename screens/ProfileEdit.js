@@ -18,7 +18,7 @@ export default function ProfileEdit({ navigation }) {
   const { isDarkMode } = useContext(DarkModeContext);
   const auth = getAuth();
   const [user, setUser] = useState(auth.currentUser);
-
+  const [bio, setBio] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -51,6 +51,7 @@ export default function ProfileEdit({ navigation }) {
       if (savedData) {
         const userData = JSON.parse(savedData);
         setName(userData.name || '');
+        setBio(userData.bio || '');
         setEmail(userData.email || '');
         setPhoneNumber(userData.phoneNumber || '');
         setAddress(userData.address || '');
@@ -65,6 +66,7 @@ export default function ProfileEdit({ navigation }) {
       if (!user) return;
       const userData = {
         name,
+        bio,
         email,
         phoneNumber,
         address,
@@ -85,6 +87,7 @@ export default function ProfileEdit({ navigation }) {
 
       await set(userRef, {
         username: name,
+        bio,
         email,
         phoneNumber,
         address,
@@ -113,6 +116,13 @@ export default function ProfileEdit({ navigation }) {
             placeholder="Name"
             value={name}
             onChangeText={setName}
+            placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
+          />
+          <TextInput
+            style={[styles.input, isDarkMode && styles.darkInput]}
+            placeholder="Bio"
+            value={bio}
+            onChangeText={setBio}
             placeholderTextColor={isDarkMode ? '#ccc' : '#999'}
           />
           <TextInput

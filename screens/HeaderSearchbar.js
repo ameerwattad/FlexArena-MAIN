@@ -24,7 +24,7 @@ export default function HeaderSearchbar() {
                     <Ionicons name='list' color='white' size={30} style={styles.list} />
                 </TouchableOpacity>
             </View>
-            
+
             {dropdownVisible && (
                 <View style={styles.dropdown}>
                     <FlatList

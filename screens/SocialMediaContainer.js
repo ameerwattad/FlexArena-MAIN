@@ -39,7 +39,7 @@ const SocialMediaContainer = () => {
 
 const openSocialMediaProfile = (platform) => {
   // Implement navigation to respective social media profiles here
-  switch(platform) {
+  switch (platform) {
     case 'facebook':
       // Navigate to Facebook profile
       Linking.openURL('https://www.facebook.com/ameer.watted.1/');

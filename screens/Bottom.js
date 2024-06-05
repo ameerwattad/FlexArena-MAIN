@@ -10,36 +10,36 @@ import Login from './Login';
 
 
 export default function Bottom() {
-    const Tab = createBottomTabNavigator(); 
+  const Tab = createBottomTabNavigator();
 
   return (
     <Tab.Navigator
-    screenOptions={({ route }) => ({
+      screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          let iconColor;  
+          let iconColor;
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-            iconColor= focused ? 'blue': 'white'; 
-          } else if(route.name==='Search'){
+            iconColor = focused ? 'blue' : 'white';
+          } else if (route.name === 'Search') {
             iconName = focused ? 'search' : 'search-outline';
-            iconColor = focused ? 'blue' : 'white' ; 
-          }else if(route.name==='Cart'){
+            iconColor = focused ? 'blue' : 'white';
+          } else if (route.name === 'Cart') {
             iconName = focused ? 'cart' : 'cart-outline';
-            iconColor= focused ? 'blue' : 'white'; 
-          }else if(route.name==='Profile'){
-            iconName= focused ? 'person': 'person-outline';
-            iconColor= focused ? 'blue' : 'white';
+            iconColor = focused ? 'blue' : 'white';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+            iconColor = focused ? 'blue' : 'white';
           }
-   
+
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
-        <Tab.Screen name='Home' component={Home}/> 
-        <Tab.Screen name='Search' component={Search} />
-        <Tab.Screen name='Cart' component={Cart}/>
-        <Tab.Screen name='Profile' component={Login} />
+      <Tab.Screen name='Home' component={Home} />
+      <Tab.Screen name='Search' component={Search} />
+      <Tab.Screen name='Cart' component={Cart} />
+      <Tab.Screen name='Profile' component={Login} />
     </Tab.Navigator>
   )
 }

@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
-import Slideshow from 'react-native-image-slider-show';
 import { Rating } from 'react-native-ratings';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { database } from './firebase'; // Import the Firebase database instance
 import AboutUs from './AboutUs';
 import SocialMediaContainer from './SocialMediaContainer';
 import FastImage from 'react-native-fast-image';
+import DarkMode from './settings/DarkMode'; // Import the DarkMode context
+import Slideshow from 'react-native-image-slider-show';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
+  const { isDarkMode } = useContext(DarkMode); // Access the dark mode state
   const [searchQuery, setSearchQuery] = useState('');
   const [specialPicks, setSpecialPicks] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
@@ -29,7 +31,6 @@ export default function Home() {
             ...productsData[key],
           }));
           setAllProducts(productsArray);
-          // Pick 6 random products
           const shuffled = productsArray.sort(() => 0.5 - Math.random());
           setSpecialPicks(shuffled.slice(0, 6));
         }
@@ -58,20 +59,35 @@ export default function Home() {
     return name;
   };
 
+  const TouchableImage = ({ source, onPress, style }) => {
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <Image source={source} style={style} />
+      </TouchableOpacity>
+    );
+  };
+
   const images = [
-    { url: require('./../assets/images/SALES/smartwatch.png') },
-    { url: require('./../assets/images/SALES/1.png') },
-    { url: require('./../assets/images/SALES/30.png') },
+    {
+      url: require('./../assets/images/SALES/smartwatch.png'),
+      component: (
+        <TouchableImage
+          source={require('./../assets/images/SALES/smartwatch.png')}
+          style={styles.slideshowImage}
+        />
+      ),
+    },
+    // ... other images
   ];
 
   return (
-    <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-      <View style={[styles.container]}>
-        <View style={[styles.blueContainer]}>
+    <ScrollView contentContainerStyle={[styles.scrollViewContent, isDarkMode && styles.darkScrollViewContent]}>
+      <View style={[styles.container, isDarkMode && styles.darkContainer]}>
+        <View style={[styles.blueContainer, isDarkMode && styles.darkBlueContainer]}>
           <View style={styles.searchContainer}>
             <Searchbar
               placeholder="Search"
-              style={styles.searchbar}
+              style={[styles.searchbar, isDarkMode && styles.darkSearchbar]}
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={() => navigation.navigate('SearchResults', { searchQuery })}
@@ -88,16 +104,16 @@ export default function Home() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.topContainer}>
-          <Text style={styles.specialPicksText}>Special Picks for You!</Text>
+        <View style={[styles.topContainer, isDarkMode && styles.darkTopContainer]}>
+          <Text style={[styles.specialPicksText, isDarkMode && styles.darkSpecialPicksText]}>Special Picks for You!</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.topCategoriesContainer}>
               {specialPicks.map((product, index) => (
                 <TouchableOpacity key={index} style={styles.topCategoryItem} onPress={() => navigation.navigate('ProductDetail', { product })}>
                   <Image source={{ uri: product.image }} style={styles.topCarouselImage} />
-                  <Text style={styles.categoryText}>{truncateName(product.name)}</Text>
-                  <Text style={styles.categoryDescription}>{truncateDescription(product.description)}</Text>
-                  <Text style={[styles.productPrice]}>{`Price: $${parseFloat(product.price).toFixed(2)}`}</Text>
+                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{truncateName(product.name)}</Text>
+                  <Text style={[styles.categoryDescription, isDarkMode && styles.darkCategoryDescription]}>{truncateDescription(product.description)}</Text>
+                  <Text style={[styles.productPrice, isDarkMode && styles.darkProductPrice]}>{`Price: $${parseFloat(product.price).toFixed(2)}`}</Text>
                   <Rating
                     type='star'
                     ratingCount={5}
@@ -112,7 +128,7 @@ export default function Home() {
           </ScrollView>
         </View>
 
-        <View style={[styles.slideableContainer, { height: 200 }]}>
+        <TouchableOpacity style={[styles.slideableContainer, { height: 200 }, isDarkMode && styles.darkSlideableContainer]}>
           <Slideshow
             dataSource={images.map((image, index) => ({
               ...image,
@@ -128,33 +144,34 @@ export default function Home() {
             titleStyle={styles.slideshowTitle}
             captionStyle={styles.slideshowCaption}
           />
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.categoriesContainer}>
-          <Text style={styles.categoryHeaderText}>Shop by Category</Text>
+
+        <View style={[styles.categoriesContainer, isDarkMode && styles.darkCategoriesContainer]}>
+          <Text style={[styles.categoryHeaderText, isDarkMode && styles.darkCategoryHeaderText]}>Shop by Category</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
             <View style={styles.categoryItemsContainer}>
               {[
-                { name: 'Machines', image: require('../assets/images/Categories/gym.png') },
-                { name: 'Supplements', image: require('../assets/images/Categories/protein-powder.png') },
-                { name: 'Shirts', image: require('../assets/images/Categories/tshirt.png') },
+                { name: 'Machines', image: require('../assets/images/Categories/dumbell.png') },
+                { name: 'Supplements', image: require('../assets/images/Categories/supplements.png') },
+                { name: 'Shirts', image: require('../assets/images/Categories/shirt.png') },
                 { name: 'Smartwatches', image: require('../assets/images/Categories/smartwatch.png') },
-                { name: 'Accessories', image: require('../assets/images/Categories/towels.png') },
+                { name: 'Accessories', image: require('../assets/images/Categories/gloves.png') },
               ].map((category, index) => (
-                <TouchableOpacity 
-                  key={index} 
-                  style={styles.categoryItem} 
+                <TouchableOpacity
+                  key={index}
+                  style={styles.categoryItem}
                   onPress={() => handleCategoryPress(category.name)}
                 >
                   <Image source={category.image} style={styles.carouselImage} />
-                  <Text style={styles.categoryText}>{category.name}</Text>
+                  <Text style={[styles.categoryText, isDarkMode && styles.darkCategoryText]}>{category.name}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           </ScrollView>
         </View>
-        <AboutUs/>
-        <SocialMediaContainer/>
+        <AboutUs />
+        <SocialMediaContainer />
       </View>
     </ScrollView>
   );
@@ -162,7 +179,10 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   scrollViewContent: {
-    flexGrow: 1,
+    flexGrow: 1
+  },
+  darkScrollViewContent: {
+    backgroundColor: '#121212',
   },
   container: {
     flex: 1,
@@ -170,10 +190,16 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     backgroundColor: '#F1FAFE',
   },
+  darkContainer: {
+    backgroundColor: '#121212',
+  },
   blueContainer: {
     height: 80,
     backgroundColor: 'lightblue',
     justifyContent: 'center',
+  },
+  darkBlueContainer: {
+    backgroundColor: '#1E1E1E',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -185,6 +211,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     color: 'black',
     flex: 1,
+  },
+  darkSearchbar: {
+    backgroundColor: '#333333',
+    color: 'white',
   },
   iconContainer: {
     padding: 10,
@@ -200,10 +230,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 347,
   },
+  darkTopContainer: {
+    backgroundColor: '#1E1E1E',
+  },
   specialPicksText: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 40,
+  },
+  darkSpecialPicksText: {
+    color: 'white',
   },
   topCategoriesContainer: {
     flexDirection: 'row',
@@ -225,16 +261,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
   },
+  darkCategoryText: {
+    color: 'white',
+  },
   categoryDescription: {
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 10,
+  },
+  darkCategoryDescription: {
+    color: 'gray',
   },
   productPrice: {
     fontSize: 14,
     color: '#007AFF', // Default color for light mode
     textAlign: 'center',
     marginBottom: 5, // Add some margin at the bottom
+  },
+  darkProductPrice: {
+    color: '#FF9500',
   },
   rating: {
     marginTop: 10,
@@ -245,6 +290,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
   },
+  darkSlideableContainer: {
+    backgroundColor: '#1E1E1E',
+  },
   slideshowContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -254,6 +302,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     paddingHorizontal: 10,
+    height: 180,
+  },
+  darkCategoriesContainer: {
+    backgroundColor: '#1E1E1E',
   },
   categoryItemsContainer: {
     flexDirection: 'row',
@@ -280,5 +332,12 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
+  categoryHeaderText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 40,
+  },
+  darkCategoryHeaderText: {
+    color: 'white',
+  },
 });
-

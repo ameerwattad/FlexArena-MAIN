@@ -11,11 +11,13 @@ import DarkModeContext from './settings/DarkMode';
 import BugReport from './BugReport';
 import ContactUsScreen from './ContactUsScreen';
 import ProfileEdit from './ProfileEdit';
+import Wishlist from './Wishlist'; // Import WishlistScreen component
 
 export default function Profile({ navigation }) {
   const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
   const [image, setImage] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
@@ -33,6 +35,9 @@ export default function Profile({ navigation }) {
         setImage(imageURL);
         const fetchedUsername = await fetchUsername(user.uid);
         setUsername(fetchedUsername);
+
+        const fetchedBio = await fetchBio(user.uid);
+        setBio(fetchedBio);
       }
     });
 
@@ -54,6 +59,21 @@ export default function Profile({ navigation }) {
     }
   };
 
+  const fetchBio = async (userId) => {
+    try {
+      const userRef = databaseRef(database, `users/${userId}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        return userData.bio;
+      }
+      return 'No Bio';
+    } catch (error) {
+      console.error('Error fetching bio:', error);
+      return 'No Bio';
+    }
+  };
+
   const uploadProfileImage = async (imageUri, userId) => {
     try {
       const compressedUri = await compressImage(imageUri); // Compress image
@@ -70,11 +90,11 @@ export default function Profile({ navigation }) {
   const uploadBlob = async (ref, blob) => {
     return new Promise((resolve, reject) => {
       const task = uploadBytesResumable(ref, blob);
-      task.on('state_changed', 
-        () => {}, 
+      task.on('state_changed',
+        () => { },
         error => {
           reject(error);
-        }, 
+        },
         () => {
           resolve();
         }
@@ -186,8 +206,8 @@ export default function Profile({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
-      <View style={styles.profile}>
+    <SafeAreaView style={[styles.container, isDarkMode ? styles.darkContainer : null]}>
+      <View style={[styles.profile, isDarkMode ? styles.darkProfile : null]}>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <View style={styles.profileAvatarWrapper}>
             <Image
@@ -204,107 +224,94 @@ export default function Profile({ navigation }) {
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.profileName}>{username}</Text>
-          <Text style={styles.profileAddress}>
-            Tel Aviv
-          </Text>
+          <Text style={[styles.profileName, isDarkMode ? styles.darkProfileName : null]}>{username}</Text>
+          <Text style={[styles.profileAddress, isDarkMode ? styles.darkProfileAddress : null]}>{bio}</Text>
         </View>
       </View>
 
+
       <ScrollView>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
+          <Text style={[styles.sectionTitle, isDarkMode ? styles.darkSectionTitle : null]}>Preferences</Text>
 
-          <TouchableOpacity style={styles.row} onPress={()=> navigation.navigate('ProfileEdit')}>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ProfileEdit')}>
             <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
               <FeatherIcon color="#fff" name="user" size={20} />
             </View>
-
-            <Text style={styles.rowLabel}>Edit Profile</Text>
-
+            <Text style={[styles.rowLabel, isDarkMode ? styles.darkRowLabel : null]}>Edit Profile</Text>
             <View style={styles.rowSpacer} />
-
             <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
-
 
           <View style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
               <FeatherIcon color="#fff" name="moon" size={20} />
             </View>
-
-            <Text style={styles.rowLabel}>Dark Mode</Text>
-
+            <Text style={[styles.rowLabel, isDarkMode ? styles.darkRowLabel : null]}>Dark Mode</Text>
             <View style={styles.rowSpacer} />
-
             <Switch
               onValueChange={toggleDarkMode}
               value={isDarkMode}
             />
           </View>
-
-          <View style={styles.row}>
-            <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
-              <FeatherIcon color="#fff" name="at-sign" size={20} />
-            </View>
-
-            <Text style={styles.rowLabel}>Email Notifications</Text>
-
-            <View style={styles.rowSpacer} />
-
-            <Switch
-              onValueChange={emailNotifications => setForm({ ...form, emailNotifications })}
-              value={form.emailNotifications}
-            />
-          </View>
-
-          <View style={styles.row}>
-            <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
-              <FeatherIcon color="#fff" name="bell" size={20} />
-            </View>
-
-            <Text style={styles.rowLabel}>Push Notifications</Text>
-
-            <View style={styles.rowSpacer} />
-
-            <Switch
-              onValueChange={pushNotifications => setForm({ ...form, pushNotifications })}
-              value={form.pushNotifications}
-            />
-          </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Resources</Text>
+          <Text style={[styles.sectionTitle, isDarkMode ? styles.darkSectionTitle : null]}>Favorites & Purchases</Text>
 
-          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('BugReport')}>
-          <View style={[styles.rowIcon, { backgroundColor: '#8e8d91' }]}>
-          <FeatherIcon color="#fff" name="slack" size={20} />
-          </View>
-          <Text style={styles.rowLabel}>Bug Report</Text>
-          <View style={styles.rowSpacer} />
-          <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Wishlist')}>
+            <View style={[styles.rowIcon, { backgroundColor: '#ff0055' }]}>
+              <FeatherIcon color="#fff" name="heart" size={20} />
+            </View>
+            <Text style={[styles.rowLabel, isDarkMode ? styles.darkRowLabel : null]}>Wishlist</Text>
+            <View style={styles.rowSpacer} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Feedback</Text>
-
-          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ContactUsScreen')}>
-            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
-              <FeatherIcon color="#fff" name="message-circle" size={20} />
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Orders')}>
+            <View style={[styles.rowIcon, { backgroundColor: '#4caf50' }]}>
+              <FeatherIcon color="#fff" name="shopping-bag" size={20} />
             </View>
-            <Text style={styles.rowLabel}>Contact Us</Text>
+            <Text style={[styles.rowLabel, isDarkMode ? styles.darkRowLabel : null]}>Orders</Text>
             <View style={styles.rowSpacer} />
             <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
         </View>
 
+
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, isDarkMode ? styles.darkSectionTitle : null]}>Resources</Text>
+
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('BugReport')}>
+            <View style={[styles.rowIcon, { backgroundColor: '#8e8d91' }]}>
+              <FeatherIcon color="#fff" name="slack" size={20} />
+            </View>
+            <Text style={[styles.rowLabel, isDarkMode ? styles.darkRowLabel : null]}>Bug Report</Text>
+            <View style={styles.rowSpacer} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, isDarkMode ? styles.darkSectionTitle : null]}>Feedback</Text>
+
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('ContactUsScreen')}>
+            <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
+              <FeatherIcon color="#fff" name="message-circle" size={20} />
+            </View>
+            <Text style={[styles.rowLabel, isDarkMode ? styles.darkRowLabel : null]}>Contact Us</Text>
+            <View style={styles.rowSpacer} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
+          </TouchableOpacity>
+
+        </View>
+
         {user && (
           <View style={styles.signoutContainer}>
             <TouchableOpacity onPress={handleLogout}>
-              <View style={[styles.signoutButton, isDarkMode && styles.darkSignoutButton]}>
-                <Text style={styles.signoutText}>Sign out</Text>
+              <View style={[styles.signoutButton, isDarkMode ? styles.darkSignoutButton : null]}>
+                <Text style={[styles.signoutText, isDarkMode ? styles.darkSignoutText : null]}>Sign out</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -331,11 +338,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   darkContainer: {
+    flex: 1,
     backgroundColor: '#333',
   },
   profile: {
     padding: 24,
     backgroundColor: '#fff',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  darkProfile: {
+    padding: 24,
+    backgroundColor: '#222',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
@@ -366,10 +381,23 @@ const styles = StyleSheet.create({
     color: '#414d63',
     textAlign: 'center',
   },
+  darkProfileName: {
+    marginTop: 20,
+    fontSize: 19,
+    fontWeight: '600',
+    color: '#e0e0e0',
+    textAlign: 'center',
+  },
   profileAddress: {
     marginTop: 5,
     fontSize: 16,
     color: '#989898',
+    textAlign: 'center',
+  },
+  darkProfileAddress: {
+    marginTop: 5,
+    fontSize: 16,
+    color: '#b0b0b0',
     textAlign: 'center',
   },
   section: {
@@ -379,13 +407,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 12,
     fontWeight: '600',
-    color: '#9e9e9e',
+    color: '#c8c8c8', // Lighter color for dark mode
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  darkSectionTitle: {
+    paddingVertical: 12,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9e9e9e', // Lighter color for dark mode
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+
     justifyContent: 'flex-start',
     height: 50,
     backgroundColor: '#f2f2f2',
@@ -406,7 +443,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 17,
     fontWeight: '400',
-    color: '#0c0c0c',
+    color: '#0c0c0c', // Light mode text color
+  },
+  darkRowLabel: {
+    fontSize: 17,
+    fontWeight: '400',
+    color: '#010101', // Dark mode text color
   },
   rowSpacer: {
     flexGrow: 1,
@@ -428,6 +470,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#cc0000',
   },
   signoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  darkSignoutText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Keyboard, ScrollView, Button, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import ProductsList from '../admin/ProdcutsList'; // Adjust the import path based on your project structure
+import ProductsList from '../admin/ProdcutsList';
 import { ref, onValue, push, remove } from 'firebase/database';
-import { database } from './firebase'; // Adjust the import path based on your project structure
+import { database } from './firebase';
 
-// Define screen components
 const ProductsScreen = ({ products, onProductPress, onRemoveProduct }) => (
   <ScrollView contentContainerStyle={styles.content}>
     <ProductsList products={products} onProductPress={onProductPress} onRemoveProduct={onRemoveProduct} />
@@ -100,10 +99,11 @@ const ContactFormsScreen = ({ contactForms }) => (
   </ScrollView>
 );
 
-// Define the Tab Navigator
 const Tab = createBottomTabNavigator();
 
 const AdminDashboard = () => {
+  const [password, setPassword] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [newProduct, setNewProduct] = useState({
@@ -179,56 +179,79 @@ const AdminDashboard = () => {
     Keyboard.dismiss();
   };
 
+  const handleLogin = () => {
+    if (password === 'ameer') {
+      setLoggedIn(true);
+    } else {
+      Alert.alert('Invalid password', 'Please enter the correct password.');
+    }
+  };
+
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <View style={styles.container}>
+      {!loggedIn ? (
+        <View style={styles.loginContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+          />
+          <Button title="Login" onPress={handleLogin} />
+        </View>
+      ) : (
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
 
-          if (route.name === 'Products') {
-            iconName = focused ? 'cart' : 'cart-outline';
-          } else if (route.name === 'Add Product') {
-            iconName = focused ? 'add' : 'add-outline';
-          } else if (route.name === 'Bug Reports') {
-            iconName = focused ? 'bug' : 'bug-outline';
-          } else if (route.name === 'Contact Forms') {
-            iconName = focused ? 'mail' : 'mail-outline';
-          }
+              if (route.name === 'Products') {
+                iconName = focused ? 'cart' : 'cart-outline';
+              } else if (route.name === 'Add Product') {
+                iconName = focused ? 'add' : 'add-outline';
+              } else if (route.name === 'Bug Reports') {
+                iconName = focused ? 'bug' : 'bug-outline';
+              } else if (route.name === 'Contact Forms') {
+                iconName = focused ? 'mail' : 'mail-outline';
+              }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarLabel: ({ focused, color }) => {
-          let label;
-          if (route.name === 'Products') {
-            label = `Products (${products.length})`;
-          } else if (route.name === 'Add Product') {
-            label = 'Add Product';
-          } else if (route.name === 'Bug Reports') {
-            label = `Bug Reports (${bugReports.length})`;
-          } else if (route.name === 'Contact Forms') {
-            label = `Contact Forms (${contactForms.length})`;
-          }
-          return <Text style={{ color, fontSize: 12 }}>{label}</Text>;
-        },
-      })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-      }}
-    >
-      <Tab.Screen name="Products">
-        {() => <ProductsScreen products={products} onProductPress={setSelectedProduct} onRemoveProduct={handleRemoveProduct} />}
-      </Tab.Screen>
-      <Tab.Screen name="Add Product">
-        {() => <AddProductScreen newProduct={newProduct} setNewProduct={setNewProduct} handleAddProduct={handleAddProduct} ratingInputRef={ratingInputRef} />}
-      </Tab.Screen>
-      <Tab.Screen name="Bug Reports">
-        {() => <BugReportsScreen bugReports={bugReports} />}
-      </Tab.Screen>
-      <Tab.Screen name="Contact Forms">
-        {() => <ContactFormsScreen contactForms={contactForms} />}
-      </Tab.Screen>
-    </Tab.Navigator>
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarLabel: ({ focused, color }) => {
+              let label;
+              if (route.name === 'Products') {
+                label = `Products (${products.length})`;
+              } else if (route.name === 'Add Product') {
+                label = 'Add Product';
+              } else if (route.name === 'Bug Reports') {
+                label = `Bug Reports (${bugReports.length})`;
+              } else if (route.name === 'Contact Forms') {
+                label = `Contact Forms (${contactForms.length})`;
+              }
+              return <Text style={{ color, fontSize: 12 }}>{label}</Text>;
+            },
+          })}
+          tabBarOptions={{
+            activeTintColor: 'tomato',
+            inactiveTintColor: 'gray',
+          }}
+        >
+          <Tab.Screen name="Products">
+            {() => <ProductsScreen products={products} onProductPress={setSelectedProduct} onRemoveProduct={handleRemoveProduct} />}
+          </Tab.Screen>
+          <Tab.Screen name="Add Product">
+            {() => <AddProductScreen newProduct={newProduct} setNewProduct={setNewProduct} handleAddProduct={handleAddProduct} ratingInputRef={ratingInputRef} />}
+          </Tab.Screen>
+          <Tab.Screen name="Bug Reports">
+            {() => <BugReportsScreen bugReports={bugReports} />}
+          </Tab.Screen>
+          <Tab.Screen name="Contact Forms">
+            {() => <ContactFormsScreen contactForms={contactForms} />}
+          </Tab.Screen>
+        </Tab.Navigator>
+      )}
+    </View>
   );
 };
 
@@ -236,6 +259,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
+  },
+  loginContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  input: {
+    width: '80%',
+    marginBottom: 20,
+    padding: 10,
+    borderBottomWidth: 1,
   },
   content: {
     padding: 16,
@@ -249,18 +283,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     marginBottom: 16,
-  },
-  input: {
-    height: 40,
-    borderColor: '#ced4da',
-    borderWidth: 1,
-    marginBottom: 8,
-    paddingLeft: 8,
-    borderRadius: 4,
-  },
-  descriptionInput: {
-    height: 100,
-    textAlignVertical: 'top',
   },
   saveButton: {
     backgroundColor: '#28a745',

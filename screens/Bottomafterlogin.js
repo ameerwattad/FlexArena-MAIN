@@ -22,15 +22,15 @@ export default function Bottomafterlogin() {
       if (user) {
         const userEmail = user.email;
         console.log('Current User Email:', userEmail);
-  
+
         const adminsRef = ref(database, 'admins');
         console.log('Admins Reference Path:', adminsRef.toString());
-  
+
         const snapshot = await get(adminsRef);
         if (snapshot.exists()) {
           const admins = snapshot.val();
           console.log('Full Admins Snapshot:', admins);
-  
+
           const isAdmin = Object.values(admins).some(admin => admin.email === userEmail);
           if (isAdmin) {
             setIsAdmin(true);
@@ -44,11 +44,11 @@ export default function Bottomafterlogin() {
         }
       }
     };
-  
+
     checkAdminStatus();
   }, []);
-  
-  
+
+
 
   return (
     <Tab.Navigator

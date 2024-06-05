@@ -9,10 +9,11 @@ const BugReport = ({ onSubmitBugReport }) => {
 
   const submitBugReport = () => {
     const bugReport = { bugDescription, stepsToReproduce };
-    
+
     const bugReportsRef = ref(database, 'bugReports');
     push(bugReportsRef, bugReport)
-      .then(() => {a
+      .then(() => {
+        a
         console.log('Bug report submitted successfully');
         setBugDescription('');
         setStepsToReproduce('');

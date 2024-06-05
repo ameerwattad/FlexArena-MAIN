@@ -1,86 +1,117 @@
-// Import necessary modules
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Pressable, Animated, Easing } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Pressable, Animated, Easing, Alert } from 'react-native';
+import { auth, database } from './firebase'; // Adjust the path to your firebase.js file
+import { ref, set, onValue, off } from 'firebase/database';
+import DarkMode from './settings/DarkMode'; // Import the DarkMode context
+import Checkout from './Checkout';
 
-// Define the Cart component
-const Cart = ({ route }) => {
+const Cart = ({ route, navigation }) => {
   const { product } = route.params || {};
-
-  // Define state variables
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [animation] = useState(new Animated.Value(1)); // Initial value set to 1 (fully visible)
+  const [animation] = useState(new Animated.Value(1));
+  const { isDarkMode } = useContext(DarkMode); // Access the isDarkMode state from the DarkMode context
 
-  // Function to animate quantity update
-  const animateQuantityUpdate = () => {
-    Animated.timing(animation, {
-      toValue: 0,
-      duration: 300,
-      easing: Easing.linear,
-      useNativeDriver: true,
-    }).start(() => {
-      animation.setValue(1); // Reset animation value to 1 (fully visible)
-    });
+  const userId = auth.currentUser?.uid;
+
+  useEffect(() => {
+    if (userId) {
+      const cartRef = ref(database, `/carts/${userId}`);
+      onValue(cartRef, (snapshot) => {
+        const cartData = snapshot.val() || [];
+        setCartItems(cartData);
+      });
+
+      return () => {
+        off(cartRef);
+      };
+    }
+  }, [userId]);
+
+  const saveCartToFirebase = (updatedCart) => {
+    if (userId) {
+      const cartRef = ref(database, `/carts/${userId}`);
+      set(cartRef, updatedCart);
+    }
   };
 
-  // Function to add or update item in cart
   useEffect(() => {
-    if (product && product.id) {
+    if (product && product.id && userId) {
       const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
+      let updatedCart = [];
       if (existingItemIndex !== -1) {
-        const updatedCart = [...cartItems];
+        updatedCart = [...cartItems];
         updatedCart[existingItemIndex].quantity += product.quantity;
-        setCartItems(updatedCart);
       } else {
-        setCartItems([...cartItems, product]);
+        updatedCart = [...cartItems, product];
       }
+      setCartItems(updatedCart);
+      saveCartToFirebase(updatedCart);
+    } else if (product && product.id && !userId) {
+      Alert.alert('Please log in to add items to the cart.');
+      navigation.navigate('Login'); // Adjust the route name as needed
     }
   }, [product]);
 
-  // Function to remove item from cart
   const removeItem = (itemId) => {
-    const updatedCart = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedCart);
-  };
-
-  // Function to update item quantity in cart
-  const updateQuantity = (itemId, newQuantity) => {
-    if (newQuantity > 0) {
-      const updatedCart = cartItems.map(item => {
-        if (item.id === itemId) {
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      });
+    if (userId) {
+      const updatedCart = cartItems.filter(item => item.id !== itemId);
       setCartItems(updatedCart);
-      animateQuantityUpdate(); // Trigger animation
-    } else {
-      // Handle case where quantity is 0 or less
-      // You can show an error message or perform any other action here
+      saveCartToFirebase(updatedCart);
     }
   };
 
-  // Function to calculate total price of items in cart
+  const updateQuantity = (itemId, newQuantity) => {
+    if (userId) {
+      if (newQuantity > 0) {
+        const updatedCart = cartItems.map(item => {
+          if (item.id === itemId) {
+            return { ...item, quantity: newQuantity };
+          }
+          return item;
+        });
+        setCartItems(updatedCart);
+        saveCartToFirebase(updatedCart);
+        animateQuantityUpdate();
+      }
+    }
+  };
+
   useEffect(() => {
     const total = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
     setTotalPrice(total);
   }, [cartItems]);
 
-  // Function to handle checkout
   const onCheckout = async () => {
-    // Implement checkout logic
+    navigation.navigate('Checkout')
   };
 
-  // Return JSX
+  const animateQuantityUpdate = () => {
+    Animated.sequence([
+      Animated.timing(animation, {
+        toValue: 1.2,
+        duration: 200,
+        useNativeDriver: true,
+        easing: Easing.linear,
+      }),
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+        easing: Easing.linear,
+      }),
+    ]).start();
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode && styles.darkContainer]}>
       <ScrollView>
         {cartItems.map(item => (
-          <Animated.View key={item.id} style={[styles.cartItem, { opacity: animation }]}>
+          <Animated.View key={item.id} style={[styles.cartItem, isDarkMode && styles.darkCartItem, { opacity: animation }]}>
             <Image source={{ uri: item.image }} style={styles.itemImage} />
             <View style={styles.itemDetails}>
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemPrice}>Price: ${item.price}</Text>
+              <Text style={[styles.itemName, isDarkMode && styles.darkItemName]}>{item.name}</Text>
+              <Text style={[styles.itemPrice, isDarkMode && styles.darkItemPrice]}>Price: ${item.price}</Text>
               <View style={styles.quantityContainer}>
                 <Text style={styles.quantityLabel}>Quantity:</Text>
                 <TextInput
@@ -90,9 +121,6 @@ const Cart = ({ route }) => {
                     const parsedQuantity = parseInt(text);
                     if (!isNaN(parsedQuantity)) {
                       updateQuantity(item.id, parsedQuantity);
-                    } else {
-                      // Handle case where input is not a number
-                      // You can show an error message or perform any other action here
                     }
                   }}
                   keyboardType="numeric"
@@ -107,8 +135,8 @@ const Cart = ({ route }) => {
         ))}
       </ScrollView>
       <View style={styles.summary}>
-        <Text style={styles.totalText}>Total: ${totalPrice}</Text>
-        <Pressable onPress={onCheckout} style={styles.button}>
+        <Text style={[styles.totalText, isDarkMode && styles.darkTotalText]}>Total: ${totalPrice}</Text>
+        <Pressable onPress={onCheckout} style={[styles.button, isDarkMode && styles.darkButton]}>
           <Text style={styles.buttonText}>Checkout</Text>
         </Pressable>
       </View>
@@ -123,6 +151,9 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
+  darkContainer: {
+    backgroundColor: '#333333',
+  },
   cartItem: {
     flexDirection: 'row',
     marginBottom: 20,
@@ -136,6 +167,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
+  },
+  darkCartItem: {
+    backgroundColor: '#444444',
   },
   itemImage: {
     width: 100,
@@ -153,9 +187,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
   },
+  darkItemName: {
+    color: '#ffffff', // Adjust text color for dark mode
+  },
   itemPrice: {
     fontSize: 14,
     marginBottom: 5,
+  },
+  darkItemPrice: {
+    color: '#cccccc', // Adjust text color for dark mode
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -203,6 +243,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  darkTotalText: {
+    color: '#000000', // Adjust text color for dark mode
+  },
   button: {
     backgroundColor: '#6200EE',
     width: '100%',
@@ -211,6 +254,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
+  darkButton: {
+    backgroundColor: '#BB86FC', // Adjust background color for dark mode
+  },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -218,5 +264,5 @@ const styles = StyleSheet.create({
   },
 });
 
-// Export the Cart component
 export default Cart;
+

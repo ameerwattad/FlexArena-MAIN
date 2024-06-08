@@ -2,18 +2,15 @@ import { View, Text, StyleSheet, TextInput, Button, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { CardField, useConfirmPayment } from '@stripe/stripe-react-native';
 
-// Replace 'YOUR_LOCAL_NETWORK_IP' with your actual IP address.
-const API_URL = "http://10.0.0.9:3000";
+const API_URL = "http://10.0.0.130:3000";
 
-const Checkout = props => {
+export default function Checkout() {
   const [email, setEmail] = useState('');
-  const [cardDetails, setCardDetails] = useState({});
-  const { confirmPayment } = useConfirmPayment();
-  const [loading, setLoading] = useState(false);
+  const [cardDetails, setCardDetails] = useState();
+  const { confirmPayment, loading } = useConfirmPayment();
 
   const fetchPaymentIntentClientSecret = async () => {
     try {
-      console.log("Fetching payment intent client secret...");
       const response = await fetch(`${API_URL}/create-payment-intent`, {
         method: "POST",
         headers: {
@@ -22,19 +19,16 @@ const Checkout = props => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const text = await response.text();
+        console.error('Server Error:', text);
+        throw new Error(`Server error: ${response.status}`);
       }
 
       const { clientSecret, error } = await response.json();
-      if (error) {
-        console.log("Error from server:", error);
-        return { error };
-      }
-      console.log("Received client secret:", clientSecret);
-      return { clientSecret };
+      return { clientSecret, error };
     } catch (error) {
-      console.log('Error fetching payment intent client secret:', error);
-      return { error: 'Network request failed' };
+      console.error('Fetch Payment Intent Error:', error);
+      return { error: error.message };
     }
   };
 
@@ -44,85 +38,82 @@ const Checkout = props => {
       return;
     }
 
-    const billingDetails = { email: email };
-    console.log("Initiating payment with billing details:", billingDetails);
+    const billingDetails = {
+      email: email,
+    };
 
     try {
-      setLoading(true);
       const { clientSecret, error } = await fetchPaymentIntentClientSecret();
+
       if (error) {
         console.log("Unable to process payment:", error);
-        Alert.alert("Unable to process payment:", error);
-        setLoading(false);
-      } else {
-        const { paymentIntent, error: confirmError } = await confirmPayment(clientSecret, {
-          paymentMethodType: "Card", // Ensure the payment method type is provided
-          paymentMethodData: {
-            billingDetails: billingDetails,
-          },
-        });
+        Alert.alert("Unable to process payment. Please try again later.");
+        return;
+      }
 
-        if (confirmError) {
-          Alert.alert(`Payment Confirmation Error: ${confirmError.message}`);
-          console.log(`Payment Confirmation Error: ${confirmError.message}`);
-        } else if (paymentIntent) {
-          Alert.alert("Payment Successful");
-          console.log("Payment successful", paymentIntent);
-        }
-        setLoading(false);
+      const { paymentIntent, error: confirmError } = await confirmPayment(clientSecret, {
+        paymentMethodType: 'Card',
+        billingDetails: billingDetails,
+      });
+
+      if (confirmError) {
+        Alert.alert(`Payment Confirmation Error: ${confirmError.message}`);
+        return;
+      }
+
+      if (paymentIntent) {
+        Alert.alert("Payment successful");
+        console.log("Payment successful", paymentIntent);
       }
     } catch (e) {
-      console.log('Error handling payment:', e);
-      Alert.alert('Error handling payment:', e.message);
-      setLoading(false);
+      console.log("Payment Error:", e);
+      Alert.alert("An unexpected error occurred. Please try again later.");
     }
   };
 
   return (
     <View style={styles.container}>
       <TextInput
-        autoCapitalize='none'
-        placeholder='E-mail'
-        keyboardType='email-address'
+        autoCapitalize="none"
+        placeholder="E-mail"
+        keyboardType="email-address"
         onChange={value => setEmail(value.nativeEvent.text)}
         style={styles.input}
       />
       <CardField
         postalCodeEnabled={true}
-        placeholders={{ number: "4242 4242 4242 4242" }}
+        placeholders={{
+          number: "4242 4242 4242 4242",
+        }}
         cardStyle={styles.card}
         style={styles.cardContainer}
         onCardChange={cardDetails => {
-          console.log("Card details changed:", cardDetails);
           setCardDetails(cardDetails);
         }}
       />
       <Button onPress={handlePayPress} title="Pay" disabled={loading} />
-      {loading && <Text>Loading...</Text>}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
     margin: 20,
-    justifyContent: "center",
   },
   input: {
-    backgroundColor: "#efefefef",
+    backgroundColor: "#efefef",
     borderRadius: 8,
     fontSize: 20,
     height: 50,
     padding: 10,
   },
   card: {
-    backgroundColor: "#efefefef",
+    backgroundColor: "#efefef",
   },
   cardContainer: {
     height: 50,
     marginVertical: 30,
   },
 });
-
-export default Checkout;

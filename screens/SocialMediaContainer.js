@@ -1,62 +1,42 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
-
+import DarkModeContext from './settings/DarkMode';
 const SocialMediaContainer = () => {
-  // Replace these counts with your actual follower counts
+  const { isDarkMode } = useContext(DarkModeContext);
+  
   const facebookFollowers = 10000;
   const twitterFollowers = 15000;
   const instagramFollowers = 25000;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Follow Us</Text>
+    <View style={[styles.container, isDarkMode ? styles.darkContainer : null]}>
+      <Text style={[styles.title, isDarkMode ? styles.darkTitle : null]}>Follow Us</Text>
       <View style={styles.socialIconsContainer}>
         <TouchableOpacity style={styles.icon} onPress={() => openSocialMediaProfile('facebook')}>
           <Image
             source={require('../assets/images/SocialMedia/facebook.png')}
             style={styles.iconImage}
           />
-          <Text style={styles.iconText}>{facebookFollowers} followers</Text>
+          <Text style={[styles.iconText, isDarkMode ? styles.darkIconText : null]}>{facebookFollowers} followers</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.icon} onPress={() => openSocialMediaProfile('twitter')}>
           <Image
             source={require('../assets/images/SocialMedia/twitter.png')}
             style={styles.iconImage}
           />
-          <Text style={styles.iconText}>{twitterFollowers} followers</Text>
+          <Text style={[styles.iconText, isDarkMode ? styles.darkIconText : null]}>{twitterFollowers} followers</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.icon} onPress={() => openSocialMediaProfile('instagram')}>
           <Image
             source={require('../assets/images/SocialMedia/instagram.png')}
             style={styles.iconImage}
           />
-          <Text style={styles.iconText}>{instagramFollowers} followers</Text>
+          <Text style={[styles.iconText, isDarkMode ? styles.darkIconText : null]}>{instagramFollowers} followers</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-
-const openSocialMediaProfile = (platform) => {
-  // Implement navigation to respective social media profiles here
-  switch (platform) {
-    case 'facebook':
-      // Navigate to Facebook profile
-      Linking.openURL('https://www.facebook.com/ameer.watted.1/');
-      break;
-    case 'twitter':
-      // Navigate to Twitter profile
-      Linking.openURL('https://x.com/ameerwattad20');
-      break;
-    case 'instagram':
-      // Open Instagram profile
-      Linking.openURL('https://www.instagram.com/wattad_ameer/?hl=en');
-      break;
-    default:
-      console.log(`No action defined for ${platform}`);
-  }
-};
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
@@ -68,9 +48,17 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ccc',
   },
+  darkContainer: {
+    backgroundColor: '#333',
+    borderTopColor: '#555',
+  },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#000',
+  },
+  darkTitle: {
+    color: '#fff',
   },
   socialIconsContainer: {
     flexDirection: 'row',
@@ -88,6 +76,9 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 12,
     color: '#666',
+  },
+  darkIconText: {
+    color: '#bbb',
   },
 });
 

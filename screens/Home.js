@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   darkSearchbar: {
     backgroundColor: '#333333',
-    color: 'white',
+    color: 'black',
   },
   iconContainer: {
     padding: 10,

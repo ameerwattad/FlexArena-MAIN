@@ -99,6 +99,34 @@ const ContactFormsScreen = ({ contactForms }) => (
   </ScrollView>
 );
 
+// OrdersScreen Component
+const OrdersScreen = ({ orders }) => {
+  return (
+    <View style={styles.ordersContainer}>
+      <Text style={styles.ordersTitle}>Orders</Text>
+      {orders && Object.keys(orders).length > 0 ? (
+        Object.keys(orders).map((userId) => (
+          Object.keys(orders[userId]).map((orderId) => (
+            <View key={orderId} style={styles.orderItem}>
+              <Text style={styles.orderText}>Order ID: {orderId}</Text>
+              <Text style={styles.orderText}>Amount: {orders[userId][orderId]?.paymentIntent?.amount || 'N/A'}</Text>
+              <Text style={styles.orderText}>Status: {orders[userId][orderId]?.paymentIntent?.status || 'N/A'}</Text>
+              <Text style={styles.orderText}>Address: {orders[userId][orderId]?.shippingInfo?.address || 'N/A'}</Text>
+              <Text style={styles.orderText}>City: {orders[userId][orderId]?.shippingInfo?.city || 'N/A'}</Text>
+              <Text style={styles.orderText}>Email: {orders[userId][orderId]?.shippingInfo?.email || 'N/A'}</Text>
+              <Text style={styles.orderText}>Postal Code: {orders[userId][orderId]?.shippingInfo?.postalCode || 'N/A'}</Text>
+            </View>
+          ))
+        ))
+      ) : (
+        <Text>No orders available</Text>
+      )}
+    </View>
+  );
+};
+
+
+
 const Tab = createBottomTabNavigator();
 
 const AdminDashboard = () => {
@@ -117,6 +145,7 @@ const AdminDashboard = () => {
   });
   const [bugReports, setBugReports] = useState([]);
   const [contactForms, setContactForms] = useState([]);
+  const [orders, setOrders] = useState([]);
   const ratingInputRef = useRef(null);
 
   useEffect(() => {
@@ -148,6 +177,16 @@ const AdminDashboard = () => {
         ...data[key],
       })) : [];
       setContactForms(formsList);
+    });
+
+    const ordersRef = ref(database, 'orders');
+    onValue(ordersRef, (snapshot) => {
+      const data = snapshot.val();
+      const ordersList = data ? Object.keys(data).map((key) => ({
+        id: key,
+        ...data[key],
+      })) : [];
+      setOrders(ordersList);
     });
   }, []);
 
@@ -214,22 +253,12 @@ const AdminDashboard = () => {
                 iconName = focused ? 'bug' : 'bug-outline';
               } else if (route.name === 'Contact Forms') {
                 iconName = focused ? 'mail' : 'mail-outline';
+
+              } else if (route.name === 'Orders') {
+                iconName = focused ? 'clipboard' : 'clipboard-outline';
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarLabel: ({ focused, color }) => {
-              let label;
-              if (route.name === 'Products') {
-                label = `Products (${products.length})`;
-              } else if (route.name === 'Add Product') {
-                label = 'Add Product';
-              } else if (route.name === 'Bug Reports') {
-                label = `Bug Reports (${bugReports.length})`;
-              } else if (route.name === 'Contact Forms') {
-                label = `Contact Forms (${contactForms.length})`;
-              }
-              return <Text style={{ color, fontSize: 12 }}>{label}</Text>;
             },
           })}
           tabBarOptions={{
@@ -238,16 +267,32 @@ const AdminDashboard = () => {
           }}
         >
           <Tab.Screen name="Products">
-            {() => <ProductsScreen products={products} onProductPress={setSelectedProduct} onRemoveProduct={handleRemoveProduct} />}
+            {() => (
+              <ProductsScreen
+                products={products}
+                onProductPress={setSelectedProduct}
+                onRemoveProduct={handleRemoveProduct}
+              />
+            )}
           </Tab.Screen>
           <Tab.Screen name="Add Product">
-            {() => <AddProductScreen newProduct={newProduct} setNewProduct={setNewProduct} handleAddProduct={handleAddProduct} ratingInputRef={ratingInputRef} />}
+            {() => (
+              <AddProductScreen
+                newProduct={newProduct}
+                setNewProduct={setNewProduct}
+                handleAddProduct={handleAddProduct}
+                ratingInputRef={ratingInputRef}
+              />
+            )}
           </Tab.Screen>
           <Tab.Screen name="Bug Reports">
             {() => <BugReportsScreen bugReports={bugReports} />}
           </Tab.Screen>
           <Tab.Screen name="Contact Forms">
             {() => <ContactFormsScreen contactForms={contactForms} />}
+          </Tab.Screen>
+          <Tab.Screen name="Orders">
+            {() => <OrdersScreen orders={orders} />}
           </Tab.Screen>
         </Tab.Navigator>
       )}
@@ -258,86 +303,88 @@ const AdminDashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f8f8f8',
+  },
+  content: {
+    padding: 20,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  descriptionInput: {
+    height: 100,
+  },
+  saveButton: {
+    backgroundColor: 'tomato',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  bugReportsContainer: {
+    marginBottom: 20,
+  },
+  bugReportsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  bugReportItem: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  bugReportText: {
+    fontSize: 16,
+  },
+  contactFormsContainer: {
+    marginBottom: 20,
+  },
+  contactFormsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  contactFormItem: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  contactFormText: {
+    fontSize: 16,
+  },
+  ordersContainer: {
+    marginBottom: 20,
+  },
+  ordersTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  orderItem: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  orderText: {
+    fontSize: 16,
   },
   loginContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  input: {
-    width: '80%',
-    marginBottom: 20,
-    padding: 10,
-    borderBottomWidth: 1,
-  },
-  content: {
-    padding: 16,
-  },
-  inputContainer: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    marginBottom: 16,
-  },
-  saveButton: {
-    backgroundColor: '#28a745',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-    marginTop: 16,
-    alignSelf: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  bugReportsContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  bugReportsTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  bugReportItem: {
-    marginBottom: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-  },
-  bugReportText: {
-    fontSize: 16,
-    color: '#495057',
-  },
-  contactFormsContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  contactFormsTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  contactFormItem: {
-    marginBottom: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-  },
-  contactFormText: {
-    fontSize: 16,
-    color: '#495057',
   },
 });
 

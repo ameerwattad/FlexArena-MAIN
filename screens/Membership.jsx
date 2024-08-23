@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { View, Image, StyleSheet, Dimensions, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useContext, useRef } from 'react';
+import { View, Image, StyleSheet, Dimensions, Text, Animated, TouchableOpacity } from 'react-native';
 import SocialMediaContainer from './SocialMediaContainer';
 import { useNavigation } from '@react-navigation/native';
 import DarkModeContext from './settings/DarkMode';  // Import DarkModeContext
@@ -7,6 +7,8 @@ import DarkModeContext from './settings/DarkMode';  // Import DarkModeContext
 const Membership = () => {
   const navigation = useNavigation();
   const { isDarkMode } = useContext(DarkModeContext);  // Use DarkModeContext
+
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const addToCart = (product) => {
     navigation.navigate('Cart', { product: { ...product, quantity: 1 } });
@@ -47,13 +49,33 @@ const Membership = () => {
     },
   ];
 
+  const imageScale = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [1, 1.5],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <Animated.ScrollView
+      contentContainerStyle={styles.scrollContainer}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: true }
+      )}
+      scrollEventThrottle={16}
+    >
       <View style={[styles.container, isDarkMode ? styles.darkContainer : null]}>
         <View style={styles.imageContainer}>
-          <Image
+          <Animated.Image
             source={require('../assets/images/Membership/membership.webp')}
-            style={styles.image}
+            style={[
+              styles.image,
+              {
+                transform: [
+                  { scale: imageScale },
+                ],
+              },
+            ]}
             resizeMode="cover"
           />
           <View style={styles.overlay}>
@@ -97,7 +119,7 @@ const Membership = () => {
         </View>
         <SocialMediaContainer />
       </View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 };
 
@@ -120,6 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     position: 'relative',
+    overflow: 'hidden',  // Ensure the image stays within its container
   },
   image: {
     width: '100%',

@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet,
 import { auth, database } from './firebase'; // Adjust the path to your firebase.js file
 import { ref, set, onValue, off } from 'firebase/database';
 import DarkMode from './settings/DarkMode'; // Import the DarkMode context
-import Checkout from './Checkout';
+import Checkout from './Checkout'; // Import the Checkout component
 
 const Cart = ({ route, navigation }) => {
   const { product } = route.params || {};
@@ -83,7 +83,11 @@ const Cart = ({ route, navigation }) => {
   }, [cartItems]);
 
   const onCheckout = async () => {
-    navigation.navigate('Checkout')
+    if (cartItems.length === 0) {
+      Alert.alert('Your cart is empty', 'Please add items to the cart before checking out.');
+    } else {
+      navigation.navigate('Checkout', { totalAmount: totalPrice }); // Pass totalPrice to Checkout component
+    }
   };
 
   const animateQuantityUpdate = () => {
@@ -136,7 +140,11 @@ const Cart = ({ route, navigation }) => {
       </ScrollView>
       <View style={styles.summary}>
         <Text style={[styles.totalText, isDarkMode && styles.darkTotalText]}>Total: ${totalPrice}</Text>
-        <Pressable onPress={onCheckout} style={[styles.button, isDarkMode && styles.darkButton]}>
+        <Pressable
+          onPress={onCheckout}
+          style={[styles.button, isDarkMode && styles.darkButton, cartItems.length === 0 && styles.disabledButton]}
+          disabled={cartItems.length === 0}
+        >
           <Text style={styles.buttonText}>Checkout</Text>
         </Pressable>
       </View>
@@ -257,6 +265,9 @@ const styles = StyleSheet.create({
   darkButton: {
     backgroundColor: '#BB86FC', // Adjust background color for dark mode
   },
+  disabledButton: {
+    backgroundColor: '#cccccc', // Greyed out button for disabled state
+  },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -265,4 +276,3 @@ const styles = StyleSheet.create({
 });
 
 export default Cart;
-

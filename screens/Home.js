@@ -4,18 +4,18 @@ import { useNavigation } from '@react-navigation/native';
 import { Searchbar } from 'react-native-paper';
 import { Rating } from 'react-native-ratings';
 import { getDatabase, ref, onValue } from 'firebase/database';
-import { database } from './firebase'; // Import the Firebase database instance
+import { database } from './firebase'; 
 import AboutUs from './AboutUs';
 import SocialMediaContainer from './SocialMediaContainer';
 import FastImage from 'react-native-fast-image';
-import DarkMode from './settings/DarkMode'; // Import the DarkMode context
+import DarkMode from './settings/DarkMode'; 
 import Slideshow from 'react-native-image-slider-show';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
-  const { isDarkMode } = useContext(DarkMode); // Access the dark mode state
+  const { isDarkMode } = useContext(DarkMode); 
   const [searchQuery, setSearchQuery] = useState('');
   const [specialPicks, setSpecialPicks] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
@@ -53,7 +53,7 @@ export default function Home() {
   };
 
   const truncateName = (name) => {
-    if (name.length > 20) { // Adjust the length as needed
+    if (name.length > 20) { 
       return `${name.substring(0, 20)}...`;
     }
     return name;

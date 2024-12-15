@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 16, // Adds padding to the bottom to ensure last item is accessible
+    paddingBottom: 16, 
   },
   productContainer: {
     flexDirection: 'row',

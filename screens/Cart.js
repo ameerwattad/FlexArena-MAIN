@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Pressable, Animated, Easing, Alert } from 'react-native';
-import { auth, database } from './firebase'; // Adjust the path to your firebase.js file
+import { auth, database } from './firebase'; 
 import { ref, set, onValue, off } from 'firebase/database';
-import DarkMode from './settings/DarkMode'; // Import the DarkMode context
-import Checkout from './Checkout'; // Import the Checkout component
+import DarkMode from './settings/DarkMode'; 
+import Checkout from './Checkout'; 
 
 const Cart = ({ route, navigation }) => {
   const { product } = route.params || {};
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [animation] = useState(new Animated.Value(1));
-  const { isDarkMode } = useContext(DarkMode); // Access the isDarkMode state from the DarkMode context
+  const { isDarkMode } = useContext(DarkMode); 
 
   const userId = auth.currentUser?.uid;
 
@@ -49,7 +49,7 @@ const Cart = ({ route, navigation }) => {
       saveCartToFirebase(updatedCart);
     } else if (product && product.id && !userId) {
       Alert.alert('Please log in to add items to the cart.');
-      navigation.navigate('Login'); // Adjust the route name as needed
+      navigation.navigate('Login'); 
     }
   }, [product]);
 
@@ -86,7 +86,7 @@ const Cart = ({ route, navigation }) => {
     if (cartItems.length === 0) {
       Alert.alert('Your cart is empty', 'Please add items to the cart before checking out.');
     } else {
-      navigation.navigate('Checkout', { totalAmount: totalPrice }); // Pass totalPrice to Checkout component
+      navigation.navigate('Checkout', { totalAmount: totalPrice }); 
     }
   };
 
@@ -149,6 +149,7 @@ const Cart = ({ route, navigation }) => {
         </Pressable>
       </View>
     </View>
+    
   );
 };
 
@@ -196,14 +197,14 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   darkItemName: {
-    color: '#ffffff', // Adjust text color for dark mode
+    color: '#ffffff', 
   },
   itemPrice: {
     fontSize: 14,
     marginBottom: 5,
   },
   darkItemPrice: {
-    color: '#cccccc', // Adjust text color for dark mode
+    color: '#cccccc', 
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   darkTotalText: {
-    color: '#000000', // Adjust text color for dark mode
+    color: '#000000', 
   },
   button: {
     backgroundColor: '#6200EE',
@@ -263,10 +264,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   darkButton: {
-    backgroundColor: '#BB86FC', // Adjust background color for dark mode
+    backgroundColor: '#BB86FC', 
   },
   disabledButton: {
-    backgroundColor: '#cccccc', // Greyed out button for disabled state
+    backgroundColor: '#cccccc', 
   },
   buttonText: {
     color: '#fff',

@@ -1,4 +1,3 @@
-// Bottomafterlogin.js
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,8 +6,9 @@ import Search from './Search';
 import Cart from './Cart';
 import Profile from './Profile';
 import AdminDashboard from './AdminDashboard';
-import { auth, database } from './firebase'; // Import Firebase auth and database
+import { auth, database } from './firebase'; 
 import { ref, get } from 'firebase/database';
+import Chatbot from './Chatbot';
 
 
 const Tab = createBottomTabNavigator();
@@ -65,6 +65,8 @@ export default function Bottomafterlogin() {
             iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'AdminDashboard') {
             iconName = focused ? 'shield' : 'shield-outline';
+          }else if(route.name==='Chatbot'){
+            iconName=focused? 'happy' : 'happy-outline'
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -74,6 +76,7 @@ export default function Bottomafterlogin() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Search" component={Search} />
       <Tab.Screen name="Cart" component={Cart} />
+      <Tab.Screen name="Chatbot" component={Chatbot}/>
       <Tab.Screen name="Profile" component={Profile} />
       {isAdmin && <Tab.Screen name="AdminDashboard" component={AdminDashboard} />}
     </Tab.Navigator>

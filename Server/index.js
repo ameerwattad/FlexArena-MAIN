@@ -7,7 +7,7 @@ const PUBLISHABLE_KEY = "pk_test_1370KkDd7LEWuaI886nnZxQR";
 const SECRET_KEY = "sk_test_1NEdQFJXrWhZaAbIMkeNl2C0";
 const stripe = Stripe(SECRET_KEY, { apiVersion: "2024-04-10" });
 
-app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.json()); 
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
@@ -15,7 +15,7 @@ app.listen(port, () => {
 
 app.post("/create-payment-intent", async (req, res) => {
   try {
-    const { amount } = req.body; // Receive amount from the request body
+    const { amount } = req.body; 
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,

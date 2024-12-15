@@ -4,11 +4,11 @@ import { Searchbar } from 'react-native-paper';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 import SocialMediaContainer from './SocialMediaContainer';
-import DarkMode from './settings/DarkMode'; // Import the DarkMode context
+import DarkMode from './settings/DarkMode'; 
 
 const Search = () => {
   const navigation = useNavigation();
-  const { isDarkMode } = useContext(DarkMode); // Access the dark mode state
+  const { isDarkMode } = useContext(DarkMode); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState([]);
   const [specialPicks, setSpecialPicks] = useState([]);
@@ -128,16 +128,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   searchbar: {
-    backgroundColor: '#EDEDED', // Light gray background
+    backgroundColor: '#EDEDED', 
     marginBottom: 20,
-    borderRadius: 10, // Add border radius for rounded corners
-    elevation: 3, // Add elevation for a shadow effect
+    borderRadius: 10, 
+    elevation: 3, 
   },
   darkSearchbar: {
-    backgroundColor: '#333333', // Dark gray background
+    backgroundColor: '#333333', 
   },
   searchInput: {
-    color: '#000000', // Black text color
+    color: '#000000', 
   },
   categoriesContainer: {
     backgroundColor: 'white',

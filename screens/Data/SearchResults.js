@@ -14,8 +14,7 @@ export default function SearchResults() {
   const { searchQuery, category } = route.params;
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
-
+  const [loading, setLoading] = useState(true); 
   useEffect(() => {
     const productsRef = ref(database, 'products');
     onValue(productsRef, (snapshot) => {
@@ -27,18 +26,18 @@ export default function SearchResults() {
           ...data[key],
         }));
         setProducts(productList);
-        filterProducts(productList, searchQuery, category); // Initial filter when data is loaded
+        filterProducts(productList, searchQuery, category); 
       } else {
         console.log('No data available');
         setProducts([]);
         setFilteredProducts([]);
       }
-      setLoading(false); // Set loading to false after data is fetched
+      setLoading(false); 
     });
   }, []);
 
   useEffect(() => {
-    filterProducts(products, searchQuery, category); // Re-trigger filter when searchQuery or category changes
+    filterProducts(products, searchQuery, category);
   }, [searchQuery, category, products]);
 
   const filterProducts = (productsList, query, category) => {
@@ -102,7 +101,7 @@ export default function SearchResults() {
             Category: "{category}"
           </Text>
         )}
-        {loading ? ( // Show loading indicator if loading
+        {loading ? ( 
           <ActivityIndicator size="large" color={isDarkMode ? '#fff' : '#000'} />
         ) : (
           <>
@@ -222,13 +221,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   productItem: {
-    width: '90%', // Adjust width to take up 90% of the container width
+    width: '90%', 
     marginBottom: 20,
     backgroundColor: '#FFFFFF',
     padding: 10,
     borderRadius: 5,
-    borderWidth: 1, // Add border width
-    borderColor: '#ccc', // Add border color
+    borderWidth: 1,
+    borderColor: '#ccc', 
   },
   productImage: {
     width: '100%',

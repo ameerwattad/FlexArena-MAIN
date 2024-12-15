@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StripeProvider } from '@stripe/stripe-react-native'; // Import StripeProvider
+import { StripeProvider } from '@stripe/stripe-react-native'; 
 import { DarkModeProvider } from './screens/settings/DarkMode';
 import Membership from './screens/Membership';
 import Home from './screens/Home';
@@ -19,6 +19,7 @@ import SearchResults from './screens/Data/SearchResults';
 import Checkout from './screens/Checkout';
 import Wishlist from './screens/Wishlist';
 import Orders from './screens/Orders';
+import Chatbot from './screens/Chatbot';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,7 +28,7 @@ export default function App() {
     <StripeProvider publishableKey="pk_test_1370KkDd7LEWuaI886nnZxQR">
       <DarkModeProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Search">
+          <Stack.Navigator initialRouteName="Loading">
             <Stack.Screen name="Bottom" component={Bottom} options={{ headerShown: false }} />
             <Stack.Screen name="Bottomafterlogin" component={Bottomafterlogin} options={{ headerShown: false }} />
             <Stack.Screen name="Home" component={Home} />
@@ -42,6 +43,7 @@ export default function App() {
             <Stack.Screen name="Checkout" component={Checkout} />
             <Stack.Screen name="Wishlist" component={Wishlist} />
             <Stack.Screen name="Orders" component={Orders} />
+            <Stack.Screen name="Chatbot" component={Chatbot} />
           </Stack.Navigator>
         </NavigationContainer>
       </DarkModeProvider>

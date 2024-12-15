@@ -1,12 +1,34 @@
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import DarkModeContext from './settings/DarkMode';
+
 const SocialMediaContainer = () => {
   const { isDarkMode } = useContext(DarkModeContext);
-  
-  const facebookFollowers = 10000;
-  const twitterFollowers = 15000;
-  const instagramFollowers = 25000;
+
+  const facebookFollowers = 453;
+  const twitterFollowers = 897;
+  const instagramFollowers = 89;
+
+  const openSocialMediaProfile = (platform) => {
+    let url = '';
+    switch (platform) {
+      case 'facebook':
+        url = 'https://www.facebook.com/ameer.watted.1/'; 
+        break;
+      case 'twitter':
+        url = 'https://www.twitter.com/yourprofile'; 
+        break;
+      case 'instagram':
+        url = 'https://www.instagram.com/wattad_ameer'; 
+        break;
+      default:
+        console.error('Invalid platform specified');
+        return;
+    }
+    Linking.openURL(url).catch((err) =>
+      console.error("Couldn't load page", err)
+    );
+  };
 
   return (
     <View style={[styles.container, isDarkMode ? styles.darkContainer : null]}>
@@ -37,6 +59,7 @@ const SocialMediaContainer = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

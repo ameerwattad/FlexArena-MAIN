@@ -99,31 +99,35 @@ const ContactFormsScreen = ({ contactForms }) => (
   </ScrollView>
 );
 
-// OrdersScreen Component
 const OrdersScreen = ({ orders }) => {
   return (
-    <View style={styles.ordersContainer}>
+    <ScrollView contentContainerStyle={styles.content}>
       <Text style={styles.ordersTitle}>Orders</Text>
       {orders && Object.keys(orders).length > 0 ? (
-        Object.keys(orders).map((userId) => (
+        Object.keys(orders).map((userId) =>
           Object.keys(orders[userId]).map((orderId) => (
             <View key={orderId} style={styles.orderItem}>
               <Text style={styles.orderText}>Order ID: {orderId}</Text>
-              <Text style={styles.orderText}>Amount: {orders[userId][orderId]?.paymentIntent?.amount || 'N/A'}</Text>
+              <Text style={styles.orderText}>
+                Amount: ${((orders[userId][orderId]?.paymentIntent?.amount || 0) / 100).toFixed(2)}
+              </Text>
               <Text style={styles.orderText}>Status: {orders[userId][orderId]?.paymentIntent?.status || 'N/A'}</Text>
+              <Text style={styles.orderText}>Currency: {orders[userId][orderId]?.paymentIntent?.currency}</Text>
               <Text style={styles.orderText}>Address: {orders[userId][orderId]?.shippingInfo?.address || 'N/A'}</Text>
               <Text style={styles.orderText}>City: {orders[userId][orderId]?.shippingInfo?.city || 'N/A'}</Text>
               <Text style={styles.orderText}>Email: {orders[userId][orderId]?.shippingInfo?.email || 'N/A'}</Text>
               <Text style={styles.orderText}>Postal Code: {orders[userId][orderId]?.shippingInfo?.postalCode || 'N/A'}</Text>
             </View>
           ))
-        ))
+        )
       ) : (
         <Text>No orders available</Text>
       )}
-    </View>
+    </ScrollView>
   );
 };
+
+
 
 
 

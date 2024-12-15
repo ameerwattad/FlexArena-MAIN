@@ -7,7 +7,7 @@ import Cart from './Cart';
 import Profile from './Profile';
 import { Ionicons } from '@expo/vector-icons';
 import Login from './Login';
-
+import Chatbot from './Chatbot';
 
 export default function Bottom() {
   const Tab = createBottomTabNavigator();
@@ -30,6 +30,9 @@ export default function Bottom() {
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
             iconColor = focused ? 'blue' : 'white';
+          }else if (route.name === 'Chatbot') {
+            iconName = focused ? 'happy' : 'happy-outline';
+            iconColor = focused ? 'blue' : 'white';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -39,6 +42,7 @@ export default function Bottom() {
       <Tab.Screen name='Home' component={Home} />
       <Tab.Screen name='Search' component={Search} />
       <Tab.Screen name='Cart' component={Cart} />
+      <Tab.Screen name="Chatbot" component={Chatbot}/>
       <Tab.Screen name='Profile' component={Login} />
     </Tab.Navigator>
   )

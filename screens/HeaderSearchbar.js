@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     },
     dropdown: {
         position: 'absolute',
-        top: 60, // Adjust based on your layout
-        left: 10, // Adjust based on your layout
+        top: 60, 
+        left: 10,
         width: '90%',
         backgroundColor: 'white',
         borderRadius: 10,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-        zIndex: 1000 // Ensure the dropdown appears above other elements
+        zIndex: 1000 
     },
     categoryItem: {
         padding: 15,

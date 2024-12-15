@@ -70,16 +70,23 @@ export default function Home() {
   const images = [
     {
       url: require('./../assets/images/SALES/smartwatch.png'),
+      product: allProducts.find(product => product.name === 'Smartwatch'),
       component: (
         <TouchableImage
           source={require('./../assets/images/SALES/smartwatch.png')}
           style={styles.slideshowImage}
+          onPress={() => {
+            navigation.navigate('SearchResults', {
+              searchQuery: 'Smartwatch', 
+              category: 'Smartwatches', 
+            });
+          }}
         />
       ),
     },
-    // ... other images
   ];
-
+  
+  
   return (
     <ScrollView contentContainerStyle={[styles.scrollViewContent, isDarkMode && styles.darkScrollViewContent]}>
       <View style={[styles.container, isDarkMode && styles.darkContainer]}>
@@ -97,13 +104,13 @@ export default function Home() {
             </TouchableOpacity>
           </View>
         </View>
-
+  
         <View style={styles.membershipContainer}>
           <TouchableOpacity onPress={() => navigation.navigate('Membership')}>
             <Image source={require('../assets/images/Membership/try.png')} style={styles.membershipImage} />
           </TouchableOpacity>
         </View>
-
+  
         <View style={[styles.topContainer, isDarkMode && styles.darkTopContainer]}>
           <Text style={[styles.specialPicksText, isDarkMode && styles.darkSpecialPicksText]}>Special Picks for You!</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
@@ -127,12 +134,12 @@ export default function Home() {
             </View>
           </ScrollView>
         </View>
-
+  
         <TouchableOpacity style={[styles.slideableContainer, { height: 200 }, isDarkMode && styles.darkSlideableContainer]}>
           <Slideshow
             dataSource={images.map((image, index) => ({
               ...image,
-              onPress: () => navigation.navigate('ProductDetail', { product }),
+              onPress: () => navigation.navigate('ProductDetail', { product: image.product }),
             }))}
             height={200}
             arrowSize={20}
@@ -145,8 +152,7 @@ export default function Home() {
             captionStyle={styles.slideshowCaption}
           />
         </TouchableOpacity>
-
-
+  
         <View style={[styles.categoriesContainer, isDarkMode && styles.darkCategoriesContainer]}>
           <Text style={[styles.categoryHeaderText, isDarkMode && styles.darkCategoryHeaderText]}>Shop by Category</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
@@ -170,11 +176,13 @@ export default function Home() {
             </View>
           </ScrollView>
         </View>
+  
         <AboutUs />
         <SocialMediaContainer />
       </View>
     </ScrollView>
   );
+  
 }
 
 const styles = StyleSheet.create({
@@ -274,9 +282,9 @@ const styles = StyleSheet.create({
   },
   productPrice: {
     fontSize: 14,
-    color: '#007AFF', // Default color for light mode
+    color: '#007AFF', 
     textAlign: 'center',
-    marginBottom: 5, // Add some margin at the bottom
+    marginBottom: 5,
   },
   darkProductPrice: {
     color: '#FF9500',

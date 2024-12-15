@@ -4,10 +4,10 @@ import { CardField, useConfirmPayment } from '@stripe/stripe-react-native';
 import { auth, database } from './firebase'; 
 import { ref, push, set } from 'firebase/database';
 
-const API_URL = "http://10.10.0.79:3000";
+const API_URL = "http://172.20.10.2:3000";
 
 const Checkout = ({ route }) => {
-  // Extract totalAmount from route params, provide a default value in case it's undefined
+
   const { totalAmount = 0 } = route.params;
 
   const [shippingInfo, setShippingInfo] = useState({

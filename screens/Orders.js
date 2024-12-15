@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { database, auth } from './firebase'; // Import Firebase database reference
+import { database, auth } from './firebase'; 
 import { ref, onValue, off } from 'firebase/database';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
 
-  // Function to fetch orders from Firebase
+ 
   const fetchOrders = () => {
-    const userId = auth.currentUser?.uid; // Get the current user's ID
+    const userId = auth.currentUser?.uid; 
     if (userId) {
       const ordersRef = ref(database, `/orders/${userId}`);
       onValue(ordersRef, (snapshot) => {
@@ -26,9 +26,9 @@ export default function Orders() {
   useEffect(() => {
     fetchOrders();
 
-    // Cleanup function to detach Firebase listener when component unmounts
+   
     return () => {
-      const userId = auth.currentUser?.uid; // Get the current user's ID
+      const userId = auth.currentUser?.uid; 
       if (userId) {
         const ordersRef = ref(database, `/orders/${userId}`);
         off(ordersRef, 'value');
@@ -36,14 +36,14 @@ export default function Orders() {
     };
   }, []);
 
-  // Render function for each order item
+ 
   const renderOrderItem = ({ item }) => (
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Address: {item.shippingInfo.address}</Text>
       <Text style={styles.orderText}>City: {item.shippingInfo.city}</Text>
       <Text style={styles.orderText}>Postal Code: {item.shippingInfo.postalCode}</Text>
       <Text style={styles.orderText}>Email: {item.shippingInfo.email}</Text>
-      {/* You can add more order details here */}
+     
     </View>
   );
 

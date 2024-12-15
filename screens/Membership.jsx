@@ -2,11 +2,11 @@ import React, { useContext, useRef } from 'react';
 import { View, Image, StyleSheet, Dimensions, Text, Animated, TouchableOpacity } from 'react-native';
 import SocialMediaContainer from './SocialMediaContainer';
 import { useNavigation } from '@react-navigation/native';
-import DarkModeContext from './settings/DarkMode';  // Import DarkModeContext
+import DarkModeContext from './settings/DarkMode';  
 
 const Membership = () => {
   const navigation = useNavigation();
-  const { isDarkMode } = useContext(DarkModeContext);  // Use DarkModeContext
+  const { isDarkMode } = useContext(DarkModeContext);  
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     position: 'relative',
-    overflow: 'hidden',  // Ensure the image stays within its container
+    overflow: 'hidden',  
   },
   image: {
     width: '100%',

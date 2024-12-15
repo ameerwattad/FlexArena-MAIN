@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { ref, push } from 'firebase/database';
-import { database } from './firebase'; // Adjust the import path based on your project structure
+import { database } from './firebase'; 
 
 const BugReport = ({ onSubmitBugReport }) => {
   const [bugDescription, setBugDescription] = useState('');
@@ -80,22 +80,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
     backgroundColor: '#fff',
-    elevation: 3, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOpacity: 0.2, // iOS shadow
-    shadowOffset: { width: 0, height: 2 }, // iOS shadow
-    shadowRadius: 3, // iOS shadow
+    elevation: 3, 
+    shadowColor: '#000', 
+    shadowOpacity: 0.2, 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowRadius: 3, 
   },
   submitButton: {
     backgroundColor: '#007bff',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 25,
-    elevation: 3, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOpacity: 0.2, // iOS shadow
-    shadowOffset: { width: 0, height: 2 }, // iOS shadow
-    shadowRadius: 3, // iOS shadow
+    elevation: 3, 
+    shadowColor: '#000', 
+    shadowOpacity: 0.2, 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowRadius: 3, 
   },
   submitButtonText: {
     color: '#fff',

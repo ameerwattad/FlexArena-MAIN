@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, Alert, FlatList, KeyboardAvoidingView, Share } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { auth, database } from '../firebase'; // Import Firebase auth and database instances
+import { auth, database } from '../firebase'; 
 import { onAuthStateChanged } from 'firebase/auth';
 import { ref, get, set, push, remove } from 'firebase/database';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Assuming you have FontAwesome icons installed
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from expo icons library
+import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { Ionicons } from '@expo/vector-icons'; 
 
 
 const ProductDetail = ({ route, navigation }) => {
@@ -19,7 +19,7 @@ const ProductDetail = ({ route, navigation }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [inWishlist, setInWishlist] = useState(false); // Track if the product is already in the wishlist
+  const [inWishlist, setInWishlist] = useState(false); 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -36,7 +36,7 @@ const ProductDetail = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
-    // Check if the product is in the wishlist
+   
     const foundInWishlist = wishlist.some((item) => item.id === product.id);
     setInWishlist(foundInWishlist);
   }, [wishlist]);
@@ -71,14 +71,14 @@ const ProductDetail = ({ route, navigation }) => {
   const handleSubmitReview = () => {
     if (comment.trim() !== '' && rating > 0) {
       const newReview = {
-        author: 'Your Name', // Change to user's name or remove this line if not needed
+        author: 'Your Name', 
         comment: comment.trim(),
         rating: rating,
       };
       const newReviews = [...reviews, newReview];
       setReviews(newReviews);
       setComment('');
-      setRating(0); // Reset rating
+      setRating(0); 
       saveReview(newReviews);
     }
   };
@@ -98,13 +98,13 @@ const ProductDetail = ({ route, navigation }) => {
   };
 
   const calculateTotalPrice = (quantity) => {
-    const productPrice = parseFloat(product.price); // Convert price to a number
+    const productPrice = parseFloat(product.price); 
     let newTotalPrice = productPrice * quantity;
     if (product.discount) {
-      const discountedPrice = productPrice * (1 - parseFloat(product.discount) / 100); // Convert discount to a number
+      const discountedPrice = productPrice * (1 - parseFloat(product.discount) / 100); 
       newTotalPrice = discountedPrice * quantity;
     }
-    setTotalPrice(newTotalPrice.toFixed(2)); // Update totalPrice state variable
+    setTotalPrice(newTotalPrice.toFixed(2)); 
   };
 
   const fetchRelatedProducts = async () => {
@@ -154,7 +154,7 @@ const ProductDetail = ({ route, navigation }) => {
       const newWishlistItemRef = push(ref(database, `wishlist/${user.uid}`));
       await set(newWishlistItemRef, product);
       Alert.alert('Success', 'Product added to wishlist.');
-      setInWishlist(true); // Update inWishlist state variable
+      setInWishlist(true); 
     } catch (error) {
       console.error('Error adding product to wishlist:', error);
       Alert.alert('Error', 'Failed to add product to wishlist.');
@@ -176,7 +176,7 @@ const ProductDetail = ({ route, navigation }) => {
             const [key, value] = itemToRemove;
             await remove(ref(database, `wishlist/${user.uid}/${key}`));
             Alert.alert('Success', 'Product removed from wishlist.');
-            setInWishlist(false); // Update inWishlist state variable
+            setInWishlist(false); 
           }
         }
       }
@@ -339,12 +339,12 @@ const ProductDetail = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa', // Light background color
+    backgroundColor: '#f8f9fa', 
   },
   imageContainer: {
     alignItems: 'center',
     marginBottom: 20,
-    backgroundColor: '#ffffff', // White background for image container
+    backgroundColor: '#ffffff', 
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
@@ -356,25 +356,25 @@ const styles = StyleSheet.create({
   image: {
     width: '80%',
     height: 200,
-    borderRadius: 10, // Rounded corners for image
+    borderRadius: 10, 
   },
   productInfoContainer: {
     paddingHorizontal: 20,
   },
   productName: {
-    fontSize: 24, // Larger font size for product name
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#343a40', // Dark text color
+    color: '#343a40', 
   },
   productDescription: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#6c757d', // Secondary text color
+    color: '#6c757d', 
   },
   productPrice: {
-    flexDirection: 'row', // Use flexDirection to align items horizontally
-    alignItems: 'center', // Align items vertically in the center
+    flexDirection: 'row',
+    alignItems: 'center', 
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#007bff', // Primary color for buttons
+    backgroundColor: '#007bff',
     borderRadius: 15,
     marginHorizontal: 10,
     shadowColor: '#000',
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   quantityButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff', // White text color
+    color: '#fff', 
   },
   quantity: {
     fontSize: 18,
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     color: '#343a40',
   },
   addToCartButton: {
-    backgroundColor: '#28a745', // Green color for add to cart button
+    backgroundColor: '#28a745', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -421,13 +421,13 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   addToCartButtonText: {
-    color: '#fff', // White text color
+    color: '#fff', 
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   addToWishlistButton: {
-    backgroundColor: '#007bff', // Blue color for add to wishlist button
+    backgroundColor: '#007bff', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -439,13 +439,13 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   addToWishlistButtonText: {
-    color: '#fff', // White text color
+    color: '#fff', 
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   removeFromWishlistButton: {
-    backgroundColor: '#dc3545', // Red color for remove from wishlist button
+    backgroundColor: '#dc3545', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   removeFromWishlistButtonText: {
-    color: '#fff', // White text color
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   submitReviewButton: {
-    backgroundColor: '#007bff', // Primary color for submit button
+    backgroundColor: '#007bff', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   submitReviewButtonText: {
-    color: '#fff', // White text color
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingVertical: 10,
-    backgroundColor: '#fff', // White background for reviews
+    backgroundColor: '#fff', 
     paddingHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
   relatedProductsContainer: {
     padding: 20,
-    backgroundColor: '#f8f9fa', // Light background for related products section
+    backgroundColor: '#f8f9fa', 
   },
   relatedProductsTitle: {
     fontSize: 18,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
   relatedProductItem: {
     marginRight: 10,
     alignItems: 'center',
-    backgroundColor: '#fff', // White background for related product items
+    backgroundColor: '#fff', 
     padding: 10,
     borderRadius: 10,
     shadowColor: '#000',
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: 5,
-    borderRadius: 10, // Rounded corners for images
+    borderRadius: 10, 
   },
   relatedProductName: {
     fontSize: 14,
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#28a745', // Green color for price
+    color: '#28a745', 
   },
   loginPromptContainer: {
     alignItems: 'center',
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     fontSize: 16,
-    color: '#007bff', // Blue color for login button
+    color: '#007bff',
     fontWeight: 'bold',
   },
   shareIcon: {

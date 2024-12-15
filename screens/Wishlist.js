@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { database, auth } from './firebase'; // Import Firebase database and auth instances
+import { database, auth } from './firebase'; 
 import { ref, get, onValue } from 'firebase/database';
 
 export default function Wishlist({ navigation }) {
@@ -17,13 +17,13 @@ export default function Wishlist({ navigation }) {
         const wishlistArray = Object.values(wishlistData);
         setWishlistProducts(wishlistArray);
       } else {
-        setWishlistProducts([]); // No wishlist items found
+        setWishlistProducts([]); 
       }
     });
 
     return () => {
-      // Cleanup function
-      // Remove any listeners or subscriptions
+      
+      
     };
   }, []);
 
@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingVertical: 20,
     paddingHorizontal: 10,
-    backgroundColor: '#f8f9fa', // Light background color
+    backgroundColor: '#f8f9fa', 
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#343a40', // Dark text color
+    color: '#343a40', 
     textAlign: 'center',
   },
   productsContainer: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   product: {
     width: '48%',
     marginBottom: 20,
-    backgroundColor: '#fff', // White background for product
+    backgroundColor: '#fff', 
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
@@ -85,31 +85,31 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: 10,
-    borderRadius: 10, // Rounded corners for product image
+    borderRadius: 10, 
   },
   productDetails: {
     flex: 1,
-    justifyContent: 'center', // Center product details vertically
+    justifyContent: 'center', 
   },
   productName: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#343a40', // Dark text color
+    color: '#343a40', 
   },
   productDescription: {
     fontSize: 14,
     marginBottom: 5,
-    color: '#6c757d', // Secondary text color
+    color: '#6c757d',
   },
   productRating: {
     fontSize: 14,
     marginBottom: 5,
-    color: '#6c757d', // Secondary text color
+    color: '#6c757d',
   },
   productPrice: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#28a745', // Green color for price
+    color: '#28a745', 
   },
 });

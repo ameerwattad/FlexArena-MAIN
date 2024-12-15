@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Switch, Image, StyleSheet, Alert, Modal } from 'react-native';
-import { auth, storage, database } from './firebase';  // Import Firebase services
+import { auth, storage, database } from './firebase';  
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ref as databaseRef, get } from 'firebase/database';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator'; // Import ImageManipulator
+import * as ImageManipulator from 'expo-image-manipulator'; 
 import DarkModeContext from './settings/DarkMode';
 import BugReport from './BugReport';
 import ContactUsScreen from './ContactUsScreen';
 import ProfileEdit from './ProfileEdit';
-import Wishlist from './Wishlist'; // Import WishlistScreen component
+import Wishlist from './Wishlist'; 
 
 export default function Profile({ navigation }) {
   const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
@@ -20,7 +20,7 @@ export default function Profile({ navigation }) {
   const [bio, setBio] = useState('');
   const [image, setImage] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [modalVisible, setModalVisible] = useState(false); 
   const [form, setForm] = useState({
     darkMode: false,
     emailNotifications: true,
@@ -76,7 +76,7 @@ export default function Profile({ navigation }) {
 
   const uploadProfileImage = async (imageUri, userId) => {
     try {
-      const compressedUri = await compressImage(imageUri); // Compress image
+      const compressedUri = await compressImage(imageUri); 
       const response = await fetch(compressedUri);
       const blob = await response.blob();
       const imageURLRef = storageRef(storage, `profileImages/${userId}`);
@@ -117,13 +117,13 @@ export default function Profile({ navigation }) {
     try {
       const compressedImage = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 1000 } }], // Adjust the width as needed
-        { compress: 0.5, format: 'jpeg' } // Adjust the compression quality as needed
+        [{ resize: { width: 1000 } }], 
+        { compress: 0.5, format: 'jpeg' } 
       );
       return compressedImage.uri;
     } catch (error) {
       console.error('Error compressing image:', error);
-      return uri; // Return original URI if compression fails
+      return uri; 
     }
   };
 
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 12,
     fontWeight: '600',
-    color: '#c8c8c8', // Lighter color for dark mode
+    color: '#c8c8c8',
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 12,
     fontWeight: '600',
-    color: '#9e9e9e', // Lighter color for dark mode
+    color: '#9e9e9e', 
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -443,12 +443,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 17,
     fontWeight: '400',
-    color: '#0c0c0c', // Light mode text color
+    color: '#0c0c0c', 
   },
   darkRowLabel: {
     fontSize: 17,
     fontWeight: '400',
-    color: '#010101', // Dark mode text color
+    color: '#010101', 
   },
   rowSpacer: {
     flexGrow: 1,
